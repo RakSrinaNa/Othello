@@ -9,7 +9,11 @@ def initialisation():
     for x in range(0, 8):
         for y in range(0, 8):
             placer_pion(getColor(x, y), x, y)
-
+def pointeur(event):
+    chaine.configure(text = "Clic détecté en X =" + str(event.x) +\
+                            ", Y =" + str(event.y))
+def mettre_pion():
+    placer_pion(noir,((event.x)+50)//50,((event.y)+50)//50)
 def regles():
     fen1 = Tk()
     fen1.title("Regles du jeu")
@@ -24,6 +28,13 @@ def preferences():
     fen2.resizable(0, 0)
     fen2.mainloop()
 
+def a_propos():
+    fen3 = Tk()
+    fen3.title("A propos de")
+    fen3.geometry("500x500")
+    fen3.resizable(0, 0)
+    fen3.mainloop()
+
 def placer_pion(color, x, y):
     tc, dec, dec2, col, bl = 50, 25, 5, vert, "black"
     if color == blanc: col = "white"
@@ -35,7 +46,7 @@ vert, blanc, noir, yo, xo ,Comic = "#086126", 1, 2, 2, 8, ("Comic sans MS","9")
 
 fen = Tk()
 fen.title("Othello")
-fen.geometry("800x450")
+fen.geometry("800x470")
 fen.resizable(0, 0)
 
 menubar = Menu(fen)
@@ -47,7 +58,7 @@ menufichier.add_command(label = "Quitter", command = fen.destroy)
 
 menuaide= Menu(menubar,tearoff=0)
 menuaide.add_command(label = "Regles du jeu", command=regles)
-menuaide.add_command(label = "A propos de")
+menuaide.add_command(label = "A propos de",command=a_propos)
 
 menubar.add_cascade(label = "Fichier", menu = menufichier)
 menubar.add_cascade(label = "Aide", menu = menuaide)
@@ -56,6 +67,7 @@ fen.config(menu = menubar)
 
 Can = Canvas(fen, bg = vert, height = 435, width = 435)
 Can.place(x = 10, y = 10)
+Can.bind("<Button-1>", pointeur, mettre_pion)
 Label(Can, text = "A", font = Comic, bg = vert).place(x = 45, y = yo)
 Label(Can, text = "B", font = Comic, bg = vert).place(x = 95, y = yo)
 Label(Can, text = "C", font = Comic, bg = vert).place(x = 145, y = yo)
@@ -81,5 +93,8 @@ for i in range(0, 9):
     y1 += 50
     x2 += 50
 
-initialisation()
+Button(fen,text="Nouvelle partie",command=initialisation).place(x=710,y=1)
+chaine = Label(fen)
+chaine.place(x=0,y=450)
+
 fen.mainloop()
