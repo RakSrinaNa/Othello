@@ -15,7 +15,6 @@ def init():
     grid[4][3] = 2
     grid[4][4] = 1
     grid[3][4] = 2
-    showGrid()
 
 def getnumberColor(color):
     """
@@ -25,11 +24,11 @@ def getnumberColor(color):
     Return:
         Le nombre de pions de la couleur demmandee presents sur la grille
     """
-    number = 0
+    count = 0
     for y in range(0, 8):
         for x in range(0, 8):
-            if(getColor(x, y) == color): number += 1
-    return number
+            if(getColor(x, y) == color): count += 1
+    return count
 
 def getColor(x , y):
     """
@@ -58,83 +57,83 @@ def detectPawn(color, x, y):
     """
     pawnList = []
     isEating = False
-    for y2 in range(y, 8):
-        if(getColor(x, y2) == color and y2 != y and isEating): #Verifie dans la ligne horizontale en dessous
-            pawnList.append((x, y2))
+    for temporaryY in range(y, 8):
+        if(getColor(x, temporaryY) == color and temporaryY != y and isEating): #Verifie dans la ligne horizontale en dessous
+            pawnList.append((x, temporaryY))
             break
-        elif(getColor(x, y2) == color and y2 != y and not isEating): break
-        elif(getColor(x, y2) != color and getColor(x, y2) != 0 and getColor(x, y2) != 3): isEating = True
+        elif(getColor(x, temporaryY) == color and temporaryY != y and not isEating): break
+        elif(getColor(x, temporaryY) != color and getColor(x, temporaryY) != 0 and getColor(x, temporaryY) != 3): isEating = True
     isEating = False
-    for y2 in range(0, y + 1):
-        if(getColor(x, y - y2) == color and (y - y2) != y and isEating): #Verifie dans la ligne horizontale au dessus
-            pawnList.append((x, y - y2))
+    for temporaryY in range(0, y + 1):
+        if(getColor(x, y - temporaryY) == color and (y - temporaryY) != y and isEating): #Verifie dans la ligne horizontale au dessus
+            pawnList.append((x, y - temporaryY))
             break
-        elif(getColor(x, y - y2) == color and (y - y2) != y and not isEating): break
-        elif(getColor(x, y - y2) != color and getColor(x, y - y2) != 0 and getColor(x, y - y2) != 3): isEating = True
+        elif(getColor(x, y - temporaryY) == color and (y - temporaryY) != y and not isEating): break
+        elif(getColor(x, y - temporaryY) != color and getColor(x, y - temporaryY) != 0 and getColor(x, y - temporaryY) != 3): isEating = True
     isEating = False
-    for x2 in range(x, 8):
-        if(getColor(x2, y) == color and x2 != x and isEating): #Verifie dans la ligne verticale a droite
-            pawnList.append((x2, y))
+    for temporaryX in range(x, 8):
+        if(getColor(temporaryX, y) == color and temporaryX != x and isEating): #Verifie dans la ligne verticale a droite
+            pawnList.append((temporaryX, y))
             break
-        elif(getColor(x2, y) == color and x2 != x and not isEating):break
-        elif(getColor(x2, y) != color and getColor(x2, y) != 0 and getColor(x2, y) != 3): isEating = True
+        elif(getColor(temporaryX, y) == color and temporaryX != x and not isEating):break
+        elif(getColor(temporaryX, y) != color and getColor(temporaryX, y) != 0 and getColor(temporaryX, y) != 3): isEating = True
     isEating = False
-    for x2 in range(0, x + 1):
-        if(getColor(x - x2, y) == color and (x - x2) != x and isEating): #Verifie dans la ligne verticale a gauche
-            pawnList.append((x - x2, y))
+    for temporaryX in range(0, x + 1):
+        if(getColor(x - temporaryX, y) == color and (x - temporaryX) != x and isEating): #Verifie dans la ligne verticale a gauche
+            pawnList.append((x - temporaryX, y))
             break
-        elif(getColor(x - x2, y) == color and (x - x2) != x and not isEating):break
-        elif(getColor(x - x2, y) != color and getColor(x - x2, y) != 0 and getColor(x - x2, y) != 3): isEating = True
+        elif(getColor(x - temporaryX, y) == color and (x - temporaryX) != x and not isEating):break
+        elif(getColor(x - temporaryX, y) != color and getColor(x - temporaryX, y) != 0 and getColor(x - temporaryX, y) != 3): isEating = True
     isEating = False
-    d1, d2, d3, d4 = getNextPawnDiagonal(color, 1, 1, x, y), getNextPawnDiagonal(color, 1, -1, x, y), getNextPawnDiagonal(color, -1, 1, x, y), getNextPawnDiagonal(color, -1, -1, x, y)
-    if(d1 != None):pawnList.append(d1) #Diagonale + +
-    if(d2 != None):pawnList.append(d2) #Diagonale + -
-    if(d3 != None):pawnList.append(d3) #Diagonale - +
-    if(d4 != None):pawnList.append(d4) #Diagonale - -
+    diagonal1, diagonal2, diagonal3, diagonal4 = getNextPawnDiagonal(color, 1, 1, x, y), getNextPawnDiagonal(color, 1, -1, x, y), getNextPawnDiagonal(color, -1, 1, x, y), getNextPawnDiagonal(color, -1, -1, x, y)
+    if(diagonal1 != None):pawnList.append(diagonal1) #Diagonale + +
+    if(diagonal2 != None):pawnList.append(diagonal2) #Diagonale + -
+    if(diagonal3 != None):pawnList.append(diagonal3) #Diagonale - +
+    if(diagonal4 != None):pawnList.append(diagonal4) #Diagonale - -
     return pawnList
 
-def getNextPawnDiagonal(color, sx, sy, x, y):
+def getNextPawnDiagonal(color, directionX, directionY, x, y):
     """
     Permet d'avoir la position du pion le plus proche de l'autre couleur dans une diagonale
     Arguments:
         color -> La couleur du pion joue
-        sx -> Le sens de deplacement selon x (-1 ou 1)
-        sy -> Le sens de deplacement selon y (-1 ou 1)
+        directionX -> Le sens de deplacement selon x (-1 ou 1)
+        directionY -> Le sens de deplacement selon y (-1 ou 1)
         x -> La position x du pion (horizontale)
         y -> La position y du pion (verticale)
     Return:
         Un tableau bi-dimensionnel contenant la position du pion trouve
     """
-    if(abs(sx) != 1 or abs(sy) != 1): return
-    x += sx
-    y += sy
+    if(abs(directionX) != 1 or abs(directionY) != 1): return
+    x += directionX
+    y += directionY
     isEating = False
     while(getColor(x, y) != 3):
         if(getColor(x, y) == 0): return
         if(getColor(x, y) != color): isEating = True
         if(getColor(x, y) == color and isEating): return (x, y)
         elif(getColor(x, y) == color and not isEating): return
-        x += sx
-        y += sy
+        x += directionX
+        y += directionY
     return
 
-def reverse(color, coordBase, coordTo):
+def reverse(color, coordinateBase, coordinateTo):
     """
     Permet de savoir si le point 2 est sur une diagonale du point 1
     Arguments:
         color -> La couleur a mettre
-        coordBase -> Les coordonnes du pion origine
-        coordTo -> Les coordonnes du point d'arrive
+        coordinateBase -> Les coordonnes du pion origine
+        coordinateTo -> Les coordonnes du point d'arrive
     """
-    dx = coordTo[0] - coordBase[0]
-    dy = coordTo[1] - coordBase[1]
-    tx = coordBase[0]
-    ty = coordBase[1]
-    while(tx != coordTo[0] or ty != coordTo[1]):
-        grid[ty][tx] = color
-        if(dx != 0): tx = int(tx + copysign(1, dx))
-        if(dy != 0): ty = int(ty + copysign(1, dy))
-    grid[coordTo[1]][coordTo[0]] = color
+    deltaX = coordinateTo[0] - coordinateBase[0]
+    deltaY = coordinateTo[1] - coordinateBase[1]
+    temporaryX = coordinateBase[0]
+    temporaryY = coordinateBase[1]
+    while(temporaryX != coordinateTo[0] or temporaryY != coordinateTo[1]):
+        grid[temporaryY][temporaryX] = color
+        if(deltaX != 0): temporaryX = int(temporaryX + copysign(1, deltaX))
+        if(deltaY != 0): temporaryY = int(temporaryY + copysign(1, deltaY))
+    grid[coordinateTo[1]][coordinateTo[0]] = color
     
 def hasPawnNext(color, x, y):
     """
@@ -146,17 +145,17 @@ def hasPawnNext(color, x, y):
         True -> Le pion est entoure d'autres pions
         False -> Le pion n'est pas entoure d'autres pions
     """
-    x2 = x - 1
-    x3 = x + 1
-    if(x2 < 0): x2 = 0
-    if(x3 > 7): x3 = 7
-    y2 = y - 1
-    y3 = y + 1
-    if(y2 < 0): y2 = 0
-    if(y3 > 7): y3 = 7
-    for y4 in range(y2, y3 + 1):
-        for x4 in range(x2, x3 + 1):
-            if(getColor(x4, y4) != 0 and getColor(x4, y4) != color and (x4 != x or y4 != y)): return True
+    xMin = x - 1
+    xMax = x + 1
+    if(xMin < 0): xMin = 0
+    if(xMax > 7): xMax = 7
+    yMin = y - 1
+    yMax = y + 1
+    if(yMin < 0): yMin = 0
+    if(yMax > 7): yMax = 7
+    for temporaryY in range(yMin, yMax + 1):
+        for temporaryX in range(xMin, xMax + 1):
+            if(getColor(temporaryX, temporaryY) != 0 and getColor(temporaryX, temporaryY) != color and (temporaryX != x or temporaryY != y)): return True
     return False
 
 def place(color, x , y):
@@ -174,22 +173,13 @@ def place(color, x , y):
     if(getColor(x, y) == 3 or not hasPawnNext(color, x, y)): return 2
     elif(getColor(x, y) != 0): return 1
     try:
-        list = detectPawn(color, x, y)
-        if(len(list) < 1): return 2
-        for l in list:
+        pawnList = detectPawn(color, x, y)
+        if(len(pawnList) < 1): return 2
+        for l in pawnList:
             reverse(color, (x, y), l)
     except IndexError: return 2
     grid[y][x] = color
-    #showGrid()
-    print()
     return 0
-    
-def showGrid():
-    """
-    Permet d'afficher la grille dans la console
-    """
-    for l in grid: print(l)
-    print()
     
 grid = [[0 for x in range (8)] for x in range (8)]
 init()
