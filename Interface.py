@@ -23,6 +23,10 @@ def placer_pion(color, x, y):
 def mettre_pion(event):
     place(noir, ((event.x) - gridOffsetCanvas) // tailleCase, ((event.y) - gridOffsetCanvas) // tailleCase)
     refresh()
+
+def mettre_pion2(event):
+    place(blanc, ((event.x) - gridOffsetCanvas) // tailleCase, ((event.y) - gridOffsetCanvas) // tailleCase)
+    refresh()
     
 def regles():
     fen1 = Tk()
@@ -71,6 +75,7 @@ fen.config(menu = menubar)
 Can = Canvas(fen, bg = colorVert, height = 435, width = 435)
 Can.place(x = 10, y = 10)
 Can.bind("<Button-1>", mettre_pion)
+Can.bind("<Button-3>", mettre_pion2)
 Label(Can, text = "A", font = Comic, bg = colorVert).place(x = 45, y = yOffsetCanvas)
 Label(Can, text = "B", font = Comic, bg = colorVert).place(x = 95, y = yOffsetCanvas)
 Label(Can, text = "C", font = Comic, bg = colorVert).place(x = 145, y = yOffsetCanvas)
