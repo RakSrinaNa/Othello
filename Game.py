@@ -57,53 +57,66 @@ def detectPawn(color, x, y):
         Une liste de tableaux bi-dimensionnels contenant les positions des pions trouves
     """
     pawnList = []
-    for y2 in range(0, 8):
-        if(getColor(x, y2) == color and y2 != y): pawnList.append((x, y2)) #Verifie dans la ligne horizontale
-    for x2 in range(0, 8):
-        if(getColor(x2, y) == color and x2 != x): pawnList.append((x2, y)) #Verifie dans la ligne verticale
-    for y2 in range(0, 8):
-        for x2 in range(0, 8):
-            if(isDiagonal(x, y, x2, y2) and getColor(x2, y2) == color and x2 != x and y2 != y): pawnList.append((x2, y2)) #Verifie les diagonales
+    isEating = False
+    for y2 in range(y, 8):
+        if(getColor(x, y2) == color and y2 != y and isEating): #Verifie dans la ligne horizontale en dessous
+            pawnList.append((x, y2))
+            break
+        elif(getColor(x, y2) == color and y2 != y and not isEating): break
+        elif(getColor(x, y2) != color and getColor(x, y2) != 0 and getColor(x, y2) != 3): isEating = True
+    isEating = False
+    for y2 in range(0, y + 1):
+        if(getColor(x, y - y2) == color and (y - y2) != y and isEating): #Verifie dans la ligne horizontale au dessus
+            pawnList.append((x, y - y2))
+            break
+        elif(getColor(x, y - y2) == color and (y - y2) != y and not isEating): break
+        elif(getColor(x, y - y2) != color and getColor(x, y - y2) != 0 and getColor(x, y - y2) != 3): isEating = True
+    isEating = False
+    for x2 in range(x, 8):
+        if(getColor(x2, y) == color and x2 != x and isEating): #Verifie dans la ligne verticale a droite
+            pawnList.append((x2, y))
+            break
+        elif(getColor(x2, y) == color and x2 != x and not isEating):break
+        elif(getColor(x2, y) != color and getColor(x2, y) != 0 and getColor(x2, y) != 3): isEating = True
+    isEating = False
+    for x2 in range(0, x + 1):
+        if(getColor(x - x2, y) == color and (x - x2) != x and isEating): #Verifie dans la ligne verticale a gauche
+            pawnList.append((x - x2, y))
+            break
+        elif(getColor(x - x2, y) == color and (x - x2) != x and not isEating):break
+        elif(getColor(x - x2, y) != color and getColor(x - x2, y) != 0 and getColor(x - x2, y) != 3): isEating = True
+    isEating = False
+    d1, d2, d3, d4 = getNextPawnDiagonal(color, 1, 1, x, y), getNextPawnDiagonal(color, 1, -1, x, y), getNextPawnDiagonal(color, -1, 1, x, y), getNextPawnDiagonal(color, -1, -1, x, y)
+    if(d1 != None):pawnList.append(d1) #Diagonale + +
+    if(d2 != None):pawnList.append(d2) #Diagonale + -
+    if(d3 != None):pawnList.append(d3) #Diagonale - +
+    if(d4 != None):pawnList.append(d4) #Diagonale - -
     return pawnList
 
-def isDiagonal(x, y, x2, y2):
+def getNextPawnDiagonal(color, sx, sy, x, y):
     """
-    Permet de savoir si le point 2 est sur une diagonale du point 1
+    Permet d'avoir la position du pion le plus proche de l'autre couleur dans une diagonale
     Arguments:
+        color -> La couleur du pion joue
+        sx -> Le sens de deplacement selon x (-1 ou 1)
+        sy -> Le sens de deplacement selon y (-1 ou 1)
         x -> La position x du pion (horizontale)
-        y -> La position y du pion (vertivale)
-        x2 -> La position x du pion 2 (horizontale)
-        y2 -> La position y du pion 2 (vertivale)
+        y -> La position y du pion (verticale)
     Return:
-        True -> Le pion est sur une diagonale
-        False -> Le pion n'est pas sur une diagonale
+        Un tableau bi-dimensionnel contenant la position du pion trouve
     """
-    if(abs(x2 - x) == abs(y2 - y)): return True
-    return False
-      
-def hasGoodEnd(color, coordBase, coordTo):
-    """
-    Permet de savoir si cette ligne a une fin possible
-    Arguments:
-        color -> La a verifier
-        coordBase -> Les coordonnes du pion origine
-        coordTo -> Les coordonnes du point d'arrive
-    Return:
-        True -> Si la fin est possible
-        False -> Si la fin n'est pas possible
-    """
-    dx = coordTo[0] - coordBase[0]
-    dy = coordTo[1] - coordBase[1]
-    tx = coordBase[0]
-    ty = coordBase[1]
-    while(tx != coordTo[0] or ty != coordTo[1]):
-        if(grid[ty][tx] == 0): return False
-        if(grid[ty][tx] == color):
-            if(abs(tx - coordBase[0]) < 2 or abs(ty - coordBase[1]) < 2): return False
-            else: return True
-        if(dx != 0): tx = int(tx + copysign(1, dx))
-        if(dy != 0): ty = int(ty + copysign(1, dy))
-    return False
+    if(abs(sx) != 1 or abs(sy) != 1): return
+    x += sx
+    y += sy
+    isEating = False
+    while(getColor(x, y) != 3):
+        if(getColor(x, y) == 0): return
+        if(getColor(x, y) != color): isEating = True
+        if(getColor(x, y) == color and isEating): return (x, y)
+        elif(getColor(x, y) == color and not isEating): return
+        x += sx
+        y += sy
+    return
 
 def reverse(color, coordBase, coordTo):
     """
@@ -118,7 +131,6 @@ def reverse(color, coordBase, coordTo):
     tx = coordBase[0]
     ty = coordBase[1]
     while(tx != coordTo[0] or ty != coordTo[1]):
-        if(grid[ty][tx] == color and (tx != coordBase[0] or ty != coordBase[1])): return
         grid[ty][tx] = color
         if(dx != 0): tx = int(tx + copysign(1, dx))
         if(dy != 0): ty = int(ty + copysign(1, dy))
@@ -126,7 +138,7 @@ def reverse(color, coordBase, coordTo):
     
 def hasPawnNext(color, x, y):
     """
-    Permet de savoir si un pion est entoure d'autres pions
+    Permet de savoir si un pion est entoure d'autres pions d'une autre couleur
     Arguments:
         x -> La position x du pion (horizontale)
         y -> La position y du pion (vertivale)
@@ -155,19 +167,22 @@ def place(color, x , y):
         x -> La position x du pion (horizontale)
         y -> La position y du pion (vertivale)
     Return:
-        -1 -> Pas d'errur detectee
-        0 -> Case deja occupee
-        1 -> Impossible de placer le pion
+        0 -> Pas d'errur detectee
+        1 -> Case deja occupee
+        2 -> Impossible de placer le pion
     """
-    if(getColor(x, y) == 3 or not hasPawnNext(color, x, y)): return 1
-    elif(getColor(x, y) != 0): return 0
-    grid[y][x] = color
+    if(getColor(x, y) == 3 or not hasPawnNext(color, x, y)): return 2
+    elif(getColor(x, y) != 0): return 1
     try:
-        for l in detectPawn(color, x, y):
-            if(hasGoodEnd(color, (x, y), l)): reverse(color, (x, y), l)
-    except IndexError: return 1
-    showGrid()
-    return -1
+        list = detectPawn(color, x, y)
+        if(len(list) < 1): return 2
+        for l in list:
+            reverse(color, (x, y), l)
+    except IndexError: return 2
+    grid[y][x] = color
+    #showGrid()
+    print()
+    return 0
     
 def showGrid():
     """
@@ -178,8 +193,3 @@ def showGrid():
     
 grid = [[0 for x in range (8)] for x in range (8)]
 init()
-place(2, 3, 2)
-place(1, 4, 2)
-place(2, 5, 2)
-place(1, 4, 1)
-place(2, 5, 4)
