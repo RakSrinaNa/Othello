@@ -11,11 +11,25 @@ def init():
     for y in range(8):
         for x in range(8):
             grid[y][x] = 0
-    grid[3][3] = 1;
-    grid[4][3] = 2;
-    grid[4][4] = 1;
-    grid[3][4] = 2;
+    grid[3][3] = 1
+    grid[4][3] = 2
+    grid[4][4] = 1
+    grid[3][4] = 2
     showGrid()
+
+def getnumberColor(color):
+    """
+    Permet de compter le nombre de pions sur la grille (Couleur 0 pour savoir le nombre de cases vides)
+    Arguments:
+        color -> La couleur du pion a compter
+    Return:
+        Le nombre de pions de la couleur demmandee presents sur la grille
+    """
+    number = 0
+    for y in range(0, 8):
+        for x in range(0, 8):
+            if(getColor(x, y) == color): number += 1
+    return number
 
 def getColor(x , y):
     """
@@ -74,6 +88,9 @@ def hasGoodEnd(color, coordBase, coordTo):
         color -> La a verifier
         coordBase -> Les coordonnes du pion origine
         coordTo -> Les coordonnes du point d'arrive
+    Return:
+        True -> Si la fin est possible
+        False -> Si la fin n'est pas possible
     """
     dx = coordTo[0] - coordBase[0]
     dy = coordTo[1] - coordBase[1]
@@ -161,12 +178,8 @@ def showGrid():
     
 grid = [[0 for x in range (8)] for x in range (8)]
 init()
-'''while True:
-    if(int(input("Choix? ")) == 0): showGrid()
-    else:
-        print("Result: " + str(placer(int(input("x? ")), int(input("y? ")), int(input("Color? ")))))'''
-placer(2, 3, 2)
-placer(1, 4, 2)
-placer(2, 5, 2)
-placer(1, 4, 1)
-placer(2, 5, 4)
+place(2, 3, 2)
+place(1, 4, 2)
+place(2, 5, 2)
+place(1, 4, 1)
+place(2, 5, 4)
