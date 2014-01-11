@@ -31,7 +31,7 @@ def placer_pion(color, x, y):
     else: bl = vert
     Can.create_oval(dec + x * tc + dec2, dec + y * tc + dec2, dec + tc * (x + 1) - dec2, dec + tc * (y + 1) - dec2, fill = col, outline = bl)
 
-vert, blanc, noir, yo, x0 Comic = "#086126", 1, 2, 2, 8, ("Comic sans MS","9")
+vert, blanc, noir, yo, xo ,Comic = "#086126", 1, 2, 2, 8, ("Comic sans MS","9")
 
 fen = Tk()
 fen.title("Othello")
