@@ -10,11 +10,11 @@ def init():
     """
     for y in range(8):
         for x in range(8):
-            grid[y][x] = 0
-    grid[3][3] = 1
-    grid[4][3] = 2
-    grid[4][4] = 1
-    grid[3][4] = 2
+            grille[y][x] = 0
+    grille[3][3] = 1
+    grille[4][3] = 2
+    grille[4][4] = 1
+    grille[3][4] = 2
 
 def getnumberColor(color):
     """
@@ -43,7 +43,7 @@ def getColor(x , y):
         3 -> Hors de la grille
     """
     if(x < 0 or x > 7 or y < 0 or y > 7): return 3 #Hors de la grille
-    return grid[y][x]
+    return grille[y][x]
 
 def detectPawn(color, x, y):
     """
@@ -130,10 +130,10 @@ def reverse(color, coordinateBase, coordinateTo):
     temporaryX = coordinateBase[0]
     temporaryY = coordinateBase[1]
     while(temporaryX != coordinateTo[0] or temporaryY != coordinateTo[1]):
-        grid[temporaryY][temporaryX] = color
+        grille[temporaryY][temporaryX] = color
         if(deltaX != 0): temporaryX = int(temporaryX + copysign(1, deltaX))
         if(deltaY != 0): temporaryY = int(temporaryY + copysign(1, deltaY))
-    grid[coordinateTo[1]][coordinateTo[0]] = color
+    grille[coordinateTo[1]][coordinateTo[0]] = color
     
 def hasPawnNext(color, x, y):
     """
@@ -178,8 +178,8 @@ def place(color, x , y):
         for l in pawnList:
             reverse(color, (x, y), l)
     except IndexError: return 2
-    grid[y][x] = color
+    grille[y][x] = color
     return 0
     
-grid = [[0 for x in range (8)] for x in range (8)]
+grille = [[0 for x in range (8)] for x in range (8)]
 init()
