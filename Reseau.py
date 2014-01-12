@@ -4,8 +4,8 @@
 import socket
 import select
  
-hote = ''
-port = 12800
+hote = 'localhost'
+port = 
  
 connexion_principale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connexion_principale.bind((hote, port))
@@ -63,7 +63,7 @@ connexion_principale.close()
 import socket
  
 hote = "localhost"
-port = 12800
+port = 
  
 connexion_avec_serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connexion_avec_serveur.connect((hote, port))
