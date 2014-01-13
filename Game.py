@@ -16,7 +16,7 @@ def init():
     grille[4][4] = 1
     grille[3][4] = 2
 
-def getnumberColor(color):
+def getNumberColor(color):
     """
     Permet de compter le nombre de pions sur la grille (Couleur 0 pour savoir le nombre de cases vides)
     Arguments:
@@ -180,6 +180,11 @@ def place(color, x , y):
     except IndexError: return 2
     grille[y][x] = color
     return 0
+
+def showGrid():
+    for l in grille:
+        print(l)
+    print()
     
 grille = [[0 for x in range (8)] for x in range (8)]
 init()

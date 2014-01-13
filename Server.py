@@ -4,8 +4,7 @@
 import socket
 import select
  
-hote = "localhost"
-port = "" 
+hote, port, grille = "localhost", "28960", [[0 for x in range (8)] for x in range (8)]
  
 connexion_principale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connexion_principale.bind((hote, port))
@@ -13,7 +12,7 @@ connexion_principale.listen(5)
 
 serv_adv = "Bienvenue sur le serveur OTEHLLO(port : {})".format(port)
 
-print("\n" + serv_adv.upper().center(85) + "\nTraitement des donnÃ©es :\n")
+print("\n" + serv_adv.upper().center(85) + "\nTraitement des données :\n")
 serveur_lance = True
 clients_connectes = []
 

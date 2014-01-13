@@ -1,8 +1,8 @@
 '''
 @author: Olivier Froger
 '''
-from tkinter import Tk, Label, Button, Menu, Canvas
-from Game import init, getColor, place
+from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED
+from Game import init, getColor, place, getNumberColor
 
 def initialisation():
     init()
@@ -12,6 +12,8 @@ def refresh():
     for x in range(0, 8):
         for y in range(0, 8):
             placer_pion(getColor(x, y), x, y)
+    count1Var.set(getNumberColor(blanc))
+    count2Var.set(getNumberColor(noir))
 
 def placer_pion(color, x, y):
     offsetGrid, backgroundColor, borderLineColor = 5, colorVert, "black"
@@ -48,30 +50,31 @@ def a_propos():
     fen3.geometry("500x500")
     fen3.resizable(0, 0)
     fen3.mainloop()
-
-colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9")
+    
+colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3 = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35")
 
 fen = Tk()
 fen.title("Othello")
-fen.geometry("800x470")
+fen.geometry("800x450")
 fen.resizable(0, 0)
 
 menubar = Menu(fen)
      
-menufichier = Menu(menubar,tearoff=0)
+menufichier = Menu(menubar, tearoff = 0)
 menufichier.add_command(label = "Nouvelle partie", command = initialisation)
-menufichier.add_command(label = "PrÃ©fÃ©rences", command = preferences)
+menufichier.add_command(label = "Préférences", command = preferences)
 menufichier.add_command(label = "Quitter", command = fen.destroy)
 
 menuaide= Menu(menubar,tearoff=0)
-menuaide.add_command(label = "Regles du jeu", command=regles)
-menuaide.add_command(label = "A propos de",command=a_propos)
+menuaide.add_command(label = "Regles du jeu", command = regles)
+menuaide.add_command(label = "A propos de", command = a_propos)
 
 menubar.add_cascade(label = "Fichier", menu = menufichier)
 menubar.add_cascade(label = "Aide", menu = menuaide)
 
 fen.config(menu = menubar)
-
+Can2 = Canvas(fen, bg = colorVert, height = 450, width = 800)
+Can2.place(x = 0, y = 0)
 Can = Canvas(fen, bg = colorVert, height = 435, width = 435)
 Can.place(x = 10, y = 10)
 Can.bind("<Button-1>", mettre_pion)
@@ -92,7 +95,14 @@ Label(Can, text = "5", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y 
 Label(Can, text = "6", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 290)
 Label(Can, text = "7", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 340)
 Label(Can, text = "8", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 390)
-Label(fen, text = "Othello", font=  Comic).place(x = 610, y = 5)
+Label(fen, text = "Othello", font = Comic2, bg = colorVert).place(x = 570, y = 15)
+count1Var = StringVar()
+count2Var = StringVar()
+count1 = Label(fen, textvariable = count1Var, font = Comic3, fg = 'white', bg = colorVert)
+count2 = Label(fen, textvariable = count2Var, font = Comic3, bg = colorVert)
+count1.place(x = 555, y = 55)
+count2.place(x = 675, y = 55)
+
 x1, x2, y1, y2 = gridOffsetCanvas, gridOffsetCanvas, gridOffsetCanvas, gridOffsetCanvas
 
 for i in range(0, 9):
@@ -104,5 +114,17 @@ for i in range(0, 9):
 Button(fen, text = "Nouvelle partie", command = initialisation).place(x = 710, y = 1)
 chaine = Label(fen)
 chaine.place(x = 0, y = 450)
+Entry(fen, width = 300, heigh = 50).place(x = 500, y = 450)
 
 fen.mainloop()
+
+
+
+#TODO: Texte defilant
+textLabel = Text(fen, state = DISABLED, width = 61, height = 17, font = ("comic sans ms", 10))
+textLabel.place(x = 0, y = 0)
+
+def textTraitment(text): #Permet de rajouter du texte à l'objet texte
+        textLabel.config(state = NORMAL)
+        textLabel.insert(0.0, text + "\n")
+        textLabel.config(state = DISABLED)
