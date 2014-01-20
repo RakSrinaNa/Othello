@@ -4,7 +4,7 @@
 import socket
 import select
  
-hote, port, grille = "localhost", "28960", [[0 for x in range (8)] for x in range (8)]
+hote, port, grille = "192.168.228.177", 50000, [[0 for x in range (8)] for x in range (8)]
  
 connexion_principale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connexion_principale.bind((hote, port))
@@ -12,7 +12,7 @@ connexion_principale.listen(5)
 
 serv_adv = "Bienvenue sur le serveur OTEHLLO(port : {})".format(port)
 
-print("\n" + serv_adv.upper().center(85) + "\nTraitement des données :\n")
+print("\n" + serv_adv.upper().center(85) + "\nTraitement des donnÃ©es :\n")
 serveur_lance = True
 clients_connectes = []
 
@@ -30,11 +30,11 @@ while serveur_lance:
         for client in clients_a_lire:
             msg_recu = client.recv(1024)
             msg_recu = msg_recu.decode()
-            print("{} .....100%".format(msg_recu))
+            if str(msg_recu) == "fin":
+                serveur_lance = False
+            print("> " + msg_recu)
             msg_recu = msg_recu.encode()
-            client.send(msg_recu)
-            if msg_recu == "fin":
-                serveur_lance = False      
+            client.send(msg_recu)  
 print("Fermeture des connexions")
 for client in clients_connectes:
     client.close()
