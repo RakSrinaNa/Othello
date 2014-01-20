@@ -21,5 +21,5 @@ def envoi(type, *args):
     connexion_avec_serveur.close()
     
 hote = "192.168.228.177"
-port = 28960
-envoi(0, 1, 5, 7)
+port = 50000
+envoi(1, "")
