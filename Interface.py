@@ -1,8 +1,12 @@
 '''
 @author: Olivier Froger
 '''
-from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED
+from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END
 from Game import init, getColor, place, getNumberColor
+import time
+
+
+colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourdejeu = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1
 
 def initialisation():
     init()
@@ -23,13 +27,11 @@ def placer_pion(color, x, y):
     Can.create_oval(gridOffsetCanvas + (x * tailleCase) + offsetGrid, gridOffsetCanvas + (y * tailleCase) + offsetGrid, gridOffsetCanvas + (tailleCase * (x + 1)) - offsetGrid, gridOffsetCanvas + (tailleCase * (y + 1)) - offsetGrid, fill = backgroundColor, outline = borderLineColor)
 
 def mettre_pion(event):
-    place(noir, ((event.x) - gridOffsetCanvas) // tailleCase, ((event.y) - gridOffsetCanvas) // tailleCase)
+    global tourdejeu
+    if(place(1 + (tourdejeu % 2), ((event.x) - gridOffsetCanvas) // tailleCase, ((event.y) - gridOffsetCanvas) // tailleCase) == 0):
+        tourdejeu += 1
     refresh()
 
-def mettre_pion2(event):
-    place(blanc, ((event.x) - gridOffsetCanvas) // tailleCase, ((event.y) - gridOffsetCanvas) // tailleCase)
-    refresh()
-    
 def regles():
     fen1 = Tk()
     fen1.title("Regles du jeu")
@@ -50,19 +52,36 @@ def a_propos():
     fen3.geometry("500x500")
     fen3.resizable(0, 0)
     fen3.mainloop()
-    
-colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3 = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35")
 
+def parler():
+    textTraitment(en.get())
+    en.delete(0, END) 
+
+def textTraitment(text):
+    if(str(text) == "" or len(text) == text.count(" ")): return
+    textLabel.config(state = NORMAL)
+    #textLabel.insert(0.0, time.strftime('%H:%M:%S : ',time.localtime()) +  str(text) + "\n")
+    textLabel.insert(0.0, time.strftime('%H:%M:%S : ',time.localtime()) + str(ps.get()) + " : " + str(text) + "\n")
+    textLabel.config(state = DISABLED)
+
+def connexion():
+    Label(Can2, text = str(ps.get()), bg = colorVert).place(x = 50, y = 2)
+    ps.place_forget()
+    co.place_forget()
+    
+    
+    
 fen = Tk()
 fen.title("Othello")
 fen.geometry("800x450")
 fen.resizable(0, 0)
 
+
 menubar = Menu(fen)
      
 menufichier = Menu(menubar, tearoff = 0)
 menufichier.add_command(label = "Nouvelle partie", command = initialisation)
-menufichier.add_command(label = "Préférences", command = preferences)
+menufichier.add_command(label = "PrÃ©fÃ©rences", command = preferences)
 menufichier.add_command(label = "Quitter", command = fen.destroy)
 
 menuaide= Menu(menubar,tearoff=0)
@@ -73,12 +92,11 @@ menubar.add_cascade(label = "Fichier", menu = menufichier)
 menubar.add_cascade(label = "Aide", menu = menuaide)
 
 fen.config(menu = menubar)
-Can2 = Canvas(fen, bg = colorVert, height = 450, width = 800)
-Can2.place(x = 0, y = 0)
-Can = Canvas(fen, bg = colorVert, height = 435, width = 435)
-Can.place(x = 10, y = 10)
-Can.bind("<Button-1>", mettre_pion)
-Can.bind("<Button-3>", mettre_pion2)
+Can2 = Canvas(fen, bg = colorVert, height = 450, width = 365)
+Can2.place(x = 435, y =0)
+Can = Canvas(fen, bg = colorVert, height = 450, width = 435)
+Can.place(x = 0, y = 0)
+Can.bind("<Button-1>", mettre_pion) 
 Label(Can, text = "A", font = Comic, bg = colorVert).place(x = 45, y = yOffsetCanvas)
 Label(Can, text = "B", font = Comic, bg = colorVert).place(x = 95, y = yOffsetCanvas)
 Label(Can, text = "C", font = Comic, bg = colorVert).place(x = 145, y = yOffsetCanvas)
@@ -95,14 +113,18 @@ Label(Can, text = "5", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y 
 Label(Can, text = "6", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 290)
 Label(Can, text = "7", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 340)
 Label(Can, text = "8", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 390)
-Label(fen, text = "Othello", font = Comic2, bg = colorVert).place(x = 570, y = 15)
+Label(fen, text = "Othello", font = Comic2, bg = colorVert).place(x = 570, y = 35)
+Label(Can2, text = "Psuedo:", font = Comic, bg = colorVert).place(x = 5, y = 2)
+ps=Entry(Can2)
+ps.place(x = 50, y = 2)
+co=Button(Can2, text = "Connexion", command = connexion)
+co.place(x = 185, y = 2)
 count1Var = StringVar()
 count2Var = StringVar()
-count1 = Label(fen, textvariable = count1Var, font = Comic3, fg = 'white', bg = colorVert)
-count2 = Label(fen, textvariable = count2Var, font = Comic3, bg = colorVert)
-count1.place(x = 555, y = 55)
-count2.place(x = 675, y = 55)
-
+count1 = Label(Can2, textvariable = count1Var, font = Comic3, fg = 'white', bg = colorVert)
+count2 = Label(Can2, textvariable = count2Var, font = Comic3, bg = colorVert)
+count1.place(x = 115, y = 70)
+count2.place(x = 240, y = 70)
 x1, x2, y1, y2 = gridOffsetCanvas, gridOffsetCanvas, gridOffsetCanvas, gridOffsetCanvas
 
 for i in range(0, 9):
@@ -112,19 +134,10 @@ for i in range(0, 9):
     x2 += tailleCase
     
 Button(fen, text = "Nouvelle partie", command = initialisation).place(x = 710, y = 1)
-chaine = Label(fen)
-chaine.place(x = 0, y = 450)
-Entry(fen, width = 300, heigh = 50).place(x = 500, y = 450)
-
+en = Entry(Can2, width = 35)
+en.place(x = 40, y = 400)
+textLabel = Text(Can2, state = DISABLED, width = 35, height = 8, font = ("comic sans ms", 10))
+textLabel.place(x = 40, y = 200)
+Button(fen, text = "Envoyer", command = parler).place(x = 710, y = 400)
+fen.bind("<Entree>", parler())
 fen.mainloop()
-
-
-
-#TODO: Texte defilant
-textLabel = Text(fen, state = DISABLED, width = 61, height = 17, font = ("comic sans ms", 10))
-textLabel.place(x = 0, y = 0)
-
-def textTraitment(text): #Permet de rajouter du texte à l'objet texte
-        textLabel.config(state = NORMAL)
-        textLabel.insert(0.0, text + "\n")
-        textLabel.config(state = DISABLED)
