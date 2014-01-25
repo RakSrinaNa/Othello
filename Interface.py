@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 @author: Olivier Froger
 '''
@@ -8,9 +9,40 @@ import time
 
 colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourdejeu, colors, color_player = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, ["red", "green", "yellow", "blue"], "orange"
 
+def a_accent_maj():
+    """
+    Permet d'afficher un a accent majuscule
+    """
+    return chr(0x00c0)
+
+def a_accent():
+    """
+    Permet d'afficher un a accent
+    """
+    return chr(0x00e0)
+
+def e_aigu():
+    """
+    Permet d'afficher un e accent aigu
+    """
+    return chr(0x00e9)
+    
+    
+def e_grave():
+    """
+    Permet d'afficher un e accent grave
+    """
+    return chr(0x00e8)
+
+def e_circonflexe():
+    """
+    Permet d'afficher un e accent circonflexe
+    """
+    return chr(0x00ea)
+
 def initialisation():
     """
-    Permet d'initialiser par défault
+    Permet d'initialiser par default
     """
     init()
     refresh()
@@ -57,7 +89,7 @@ def regles():
     Permet d'afficher la fenetre des regles
     """
     fen1 = Tk()
-    fen1.title("Regles du jeu")
+    fen1.title("R" + e_grave() + "gles du jeu")
     fen1.geometry("500x500")
     fen1.resizable(0, 0)
     fen1.mainloop()
@@ -67,7 +99,7 @@ def preferences():
     Permet d'afficher la fenetre des preferences
     """
     fen2 = Tk()
-    fen2.title("Preferences")
+    fen2.title("Pr" + e_aigu() + "f" + e_aigu() + "rences")
     fen2.geometry("500x500")
     fen2.resizable(0, 0)
     fen2.mainloop()
@@ -77,7 +109,7 @@ def a_propos():
     Permet d'afficher la fenetre a propos
     """
     fen3 = Tk()
-    fen3.title("A propos de")
+    fen3.title(a_accent_maj() + " propos de")
     fen3.geometry("500x500")
     fen3.resizable(0, 0)
     fen3.mainloop()
@@ -104,8 +136,8 @@ def textTraitment(text, user, name, color):
     text = pTime + str(name) + " -> " + str(text)
     textLabel.config(state = NORMAL)
     textLabel.insert(0.0, text + "\n")
-    textLabel.tag_configure(color, foreground = color)
-    textLabel.tag_add(color, "1." + str(len(pTime + str(name) + " -> ")), "1." + str(len(text)))
+    textLabel.tag_configure("color", foreground = color)
+    textLabel.tag_add("color", "1." + str(len(pTime + str(name) + " -> ")), "1." + str(len(text)))
     color_user = "black"
     if(user == "player"): color_user = color_player
     elif(user == "system"): color_user = "red"
@@ -123,7 +155,7 @@ def connexion():
     co.place_forget()
     textLabel.config(state = NORMAL)
     textLabel.config(fg = "red")
-    textTraitment("Vous etes connecte en tant que " + str(ps.get()), "system", "Systeme", "orange")
+    textTraitment("Vous " + e_circonflexe() + "tes connect" + e_grave() + " en tant que " + str(ps.get()), "system", "Syst" + e_grave() + "me", "orange")
     
 fen = Tk()
 fen.title("Othello")
@@ -134,12 +166,12 @@ menubar = Menu(fen)
      
 menufichier = Menu(menubar, tearoff = 0)
 menufichier.add_command(label = "Nouvelle partie", command = initialisation)
-menufichier.add_command(label = "Preferences", command = preferences)
+menufichier.add_command(label = "Pr" + e_aigu() + "f" + e_aigu() + "rences", command = preferences)
 menufichier.add_command(label = "Quitter", command = fen.destroy)
 
 menuaide= Menu(menubar,tearoff=0)
-menuaide.add_command(label = "Regles du jeu", command = regles)
-menuaide.add_command(label = "A propos de", command = a_propos)
+menuaide.add_command(label = "R" + e_grave() + "gles du jeu", command = regles)
+menuaide.add_command(label = a_accent_maj() + " propos de", command = a_propos)
 
 menubar.add_cascade(label = "Fichier", menu = menufichier)
 menubar.add_cascade(label = "Aide", menu = menuaide)
