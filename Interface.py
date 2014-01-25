@@ -9,10 +9,16 @@ import time
 colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourdejeu, colors, color_player = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, ["red", "green", "yellow", "blue"], "orange"
 
 def initialisation():
+    """
+    Permet d'initialiser par défault
+    """
     init()
     refresh()
 
 def refresh():
+    """
+    Permet les informations de jeu
+    """
     for x in range(0, 8):
         for y in range(0, 8):
             placer_pion(getColor(x, y), x, y)
@@ -20,6 +26,14 @@ def refresh():
     count2Var.set(getNumberColor(noir))
 
 def placer_pion(color, x, y):
+    """
+    Permet de placer un pion
+    
+    Arguments:
+        color -> Le numero de la couleur jouee
+        x -> La position x (Horizontale)
+        y -> La position y (verticale)
+    """
     offsetGrid, backgroundColor, borderLineColor = 5, colorVert, "black"
     if color == blanc: backgroundColor = "white"
     elif color == noir: backgroundColor = "black"
@@ -27,12 +41,21 @@ def placer_pion(color, x, y):
     Can.create_oval(gridOffsetCanvas + (x * tailleCase) + offsetGrid, gridOffsetCanvas + (y * tailleCase) + offsetGrid, gridOffsetCanvas + (tailleCase * (x + 1)) - offsetGrid, gridOffsetCanvas + (tailleCase * (y + 1)) - offsetGrid, fill = backgroundColor, outline = borderLineColor)
 
 def mettre_pion(event):
+    """
+    Recupere un clic souris et joue le pion dans la case appropriee
+    
+    Arguments:
+        event -> L'event du clic
+    """
     global tourdejeu
     if(place(1 + (tourdejeu % 2), ((event.x) - gridOffsetCanvas) // tailleCase, ((event.y) - gridOffsetCanvas) // tailleCase) == 0):
         tourdejeu += 1
     refresh()
 
 def regles():
+    """
+    Permet d'afficher la fenetre des regles
+    """
     fen1 = Tk()
     fen1.title("Regles du jeu")
     fen1.geometry("500x500")
@@ -40,6 +63,9 @@ def regles():
     fen1.mainloop()
 
 def preferences():
+    """
+    Permet d'afficher la fenetre des preferences
+    """
     fen2 = Tk()
     fen2.title("Preferences")
     fen2.geometry("500x500")
@@ -47,6 +73,9 @@ def preferences():
     fen2.mainloop()
 
 def a_propos():
+    """
+    Permet d'afficher la fenetre a propos
+    """
     fen3 = Tk()
     fen3.title("A propos de")
     fen3.geometry("500x500")
@@ -54,10 +83,22 @@ def a_propos():
     fen3.mainloop()
 
 def parler():
+    """
+    Permet au joueur d'envoyer un message dans le chat
+    """
     textTraitment(en.get(), "player", str(ps.get()), colors[randrange(len(colors))])
     en.delete(0, END) 
 
 def textTraitment(text, user, name, color):
+    """
+    Permet d'afficher du texte dans la zone appropriee
+    
+    Arguments:
+        text -> Le texte a afficher
+        user -> La parsonne qui parle (Joueur: "player", Systeme: "system", Adversaire: "opponent", Spectateur: "spec")
+        name -> Le nom a afficher
+        color -> La couleur du texte
+    """
     if(str(text) == "" or len(text) == text.count(" ")): return
     pTime = time.strftime('%H:%M:%S : ', time.localtime())
     text = pTime + str(name) + " -> " + str(text)
@@ -68,11 +109,15 @@ def textTraitment(text, user, name, color):
     color_user = "black"
     if(user == "player"): color_user = color_player
     elif(user == "system"): color_user = "red"
+    else: color_user = "black"
     textLabel.tag_configure("name", foreground = color_user)
     textLabel.tag_add("name", "1." + str(len(pTime)), "1." + str(len(pTime + name)))
     textLabel.config(state = DISABLED)
 
 def connexion():
+    """
+    Permet d'initialiser la connexion
+    """
     Label(Can2, text = str(ps.get()), bg = colorVert, fg = 'red').place(x = 50, y = 2)
     ps.place_forget()
     co.place_forget()
