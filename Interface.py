@@ -120,6 +120,12 @@ def parler():
     """
     textTraitment(en.get(), "player", str(ps.get()), colors[randrange(len(colors))])
     en.delete(0, END) 
+    
+def parler_key(event):
+    """
+    Permet au joueur d'envoyer un message dans le chat (Pression de entree)
+    """
+    parler()
 
 def textTraitment(text, user, name, color):
     """
@@ -136,8 +142,8 @@ def textTraitment(text, user, name, color):
     text = pTime + str(name) + " -> " + str(text)
     textLabel.config(state = NORMAL)
     textLabel.insert(0.0, text + "\n")
-    textLabel.tag_configure("color", foreground = color)
-    textLabel.tag_add("color", "1." + str(len(pTime + str(name) + " -> ")), "1." + str(len(text)))
+    textLabel.tag_configure(color, foreground = color)
+    textLabel.tag_add(color, "1." + str(len(pTime + str(name) + " -> ")), "1." + str(len(text)))
     color_user = "black"
     if(user == "player"): color_user = color_player
     elif(user == "system"): color_user = "red"
@@ -220,10 +226,10 @@ for i in range(0, 9):
     
 Button(fen, text = "Nouvelle partie", command = initialisation).place(x = 710, y = 1)
 en = Entry(Can2, width = 35)
+en.bind("<Return>", parler_key)
 en.place(x = 40, y = 400)
 textLabel = Text(Can2, state = DISABLED, width = 35, height = 8, font = ("comic sans ms", 10))
 textLabel.config(fg = "black")
 textLabel.place(x = 40, y = 200)
 Button(fen, text = "Envoyer", command = parler).place(x = 710, y = 400)
-fen.bind("<Entree>", parler())
 fen.mainloop()
