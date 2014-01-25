@@ -3,10 +3,10 @@
 '''
 from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END
 from Game import init, getColor, place, getNumberColor
+from random import randrange
 import time
 
-
-colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourdejeu = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1
+colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourdejeu, colors, color_player = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, ["red", "green", "yellow", "blue"], "orange"
 
 def initialisation():
     init()
@@ -54,15 +54,22 @@ def a_propos():
     fen3.mainloop()
 
 def parler():
-    textTraitment(en.get())
+    textTraitment(en.get(), "player", str(ps.get()), colors[randrange(len(colors))])
     en.delete(0, END) 
 
-def textTraitment(text):
+def textTraitment(text, user, name, color):
     if(str(text) == "" or len(text) == text.count(" ")): return
+    pTime = time.strftime('%H:%M:%S : ', time.localtime())
+    text = pTime + str(name) + " -> " + str(text)
     textLabel.config(state = NORMAL)
-    textLabel.config(fg = "black")
-    #textLabel.insert(0.0, time.strftime('%H:%M:%S : ',time.localtime()) +  str(text) + "\n")
-    textLabel.insert(0.0, time.strftime('%H:%M:%S : ',time.localtime()) +  str(ps.get()) + " : " + str(text) + "\n")
+    textLabel.insert(0.0, text + "\n")
+    textLabel.tag_configure(color, foreground = color)
+    textLabel.tag_add(color, "1." + str(len(pTime + str(name) + " -> ")), "1." + str(len(text)))
+    color_user = "black"
+    if(user == "player"): color_user = color_player
+    elif(user == "system"): color_user = "red"
+    textLabel.tag_configure("name", foreground = color_user)
+    textLabel.tag_add("name", "1." + str(len(pTime)), "1." + str(len(pTime + name)))
     textLabel.config(state = DISABLED)
 
 def connexion():
@@ -71,23 +78,18 @@ def connexion():
     co.place_forget()
     textLabel.config(state = NORMAL)
     textLabel.config(fg = "red")
-    textLabel.insert(0.0, "Vous êtes connecté en tant que " + ps.get())
-    #textLabel.config(fg = "black")
-    textLabel.config(state = DISABLED)
-    
-    
+    textTraitment("Vous etes connecte en tant que " + str(ps.get()), "system", "Systeme", "orange")
     
 fen = Tk()
 fen.title("Othello")
 fen.geometry("800x450")
 fen.resizable(0, 0)
 
-
 menubar = Menu(fen)
      
 menufichier = Menu(menubar, tearoff = 0)
 menufichier.add_command(label = "Nouvelle partie", command = initialisation)
-menufichier.add_command(label = "Préférences", command = preferences)
+menufichier.add_command(label = "Preferences", command = preferences)
 menufichier.add_command(label = "Quitter", command = fen.destroy)
 
 menuaide= Menu(menubar,tearoff=0)
@@ -143,6 +145,7 @@ Button(fen, text = "Nouvelle partie", command = initialisation).place(x = 710, y
 en = Entry(Can2, width = 35)
 en.place(x = 40, y = 400)
 textLabel = Text(Can2, state = DISABLED, width = 35, height = 8, font = ("comic sans ms", 10))
+textLabel.config(fg = "black")
 textLabel.place(x = 40, y = 200)
 Button(fen, text = "Envoyer", command = parler).place(x = 710, y = 400)
 fen.bind("<Entree>", parler())
