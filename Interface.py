@@ -60,14 +60,20 @@ def parler():
 def textTraitment(text):
     if(str(text) == "" or len(text) == text.count(" ")): return
     textLabel.config(state = NORMAL)
+    textLabel.config(fg = "black")
     #textLabel.insert(0.0, time.strftime('%H:%M:%S : ',time.localtime()) +  str(text) + "\n")
-    textLabel.insert(0.0, time.strftime('%H:%M:%S : ',time.localtime()) + str(ps.get()) + " : " + str(text) + "\n")
+    textLabel.insert(0.0, time.strftime('%H:%M:%S : ',time.localtime()) +  str(ps.get()) + " : " + str(text) + "\n")
     textLabel.config(state = DISABLED)
 
 def connexion():
-    Label(Can2, text = str(ps.get()), bg = colorVert).place(x = 50, y = 2)
+    Label(Can2, text = str(ps.get()), bg = colorVert, fg = 'red').place(x = 50, y = 2)
     ps.place_forget()
     co.place_forget()
+    textLabel.config(state = NORMAL)
+    textLabel.config(fg = "red")
+    textLabel.insert(0.0, "Vous êtes connecté en tant que " + ps.get())
+    #textLabel.config(fg = "black")
+    textLabel.config(state = DISABLED)
     
     
     
