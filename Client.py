@@ -3,22 +3,21 @@
 '''
 
 import socket
-import binascii
 
 def envoi(type, *args):
     message = str(type)
     for arg in args:
         message += str(arg)
-    connexion_avec_serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    connexion_avec_serveur.connect((hote, port))
-    print("\n" + "Connexion etablie avec le serveur sur le port {}".format(port).upper().center(85))
+    connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connexionServeur.connect((hote, port))
+    print("\nConnexion etablie avec le serveur sur le port " + str(port))
     while message != b"fin":
         message = input("> ").encode()
-        connexion_avec_serveur.send(message)
-        msg_recu = connexion_avec_serveur.recv(1024).decode()
-        print("Notre serveur a bien recu {}".format(msg_recu))
+        connexionServeur.send(message)
+        messageRecu = connexionServeur.recv(1024).decode()
+        print("Reponse serveur: " + str(messageRecu))
     print("Fermeture de la connexion")
-    connexion_avec_serveur.close()
+    connexionServeur.close()
     
 hote = "192.168.228.177"
 port = 50000
