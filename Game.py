@@ -62,6 +62,7 @@ def detectPawn(color, x, y):
             pawnList.append((x, temporaryY))
             break
         elif(getColor(x, temporaryY) == color and temporaryY != y and not isEating): break
+        elif(getColor(x, temporaryY) == 0 and temporaryY != y): break
         elif(getColor(x, temporaryY) != color and getColor(x, temporaryY) != 0 and getColor(x, temporaryY) != 3): isEating = True
     isEating = False
     for temporaryY in range(0, y + 1):
@@ -69,6 +70,7 @@ def detectPawn(color, x, y):
             pawnList.append((x, y - temporaryY))
             break
         elif(getColor(x, y - temporaryY) == color and (y - temporaryY) != y and not isEating): break
+        elif(getColor(x, y - temporaryY) == 0 and (y - temporaryY) != y): break
         elif(getColor(x, y - temporaryY) != color and getColor(x, y - temporaryY) != 0 and getColor(x, y - temporaryY) != 3): isEating = True
     isEating = False
     for temporaryX in range(x, 8):
@@ -76,6 +78,7 @@ def detectPawn(color, x, y):
             pawnList.append((temporaryX, y))
             break
         elif(getColor(temporaryX, y) == color and temporaryX != x and not isEating):break
+        elif(getColor(temporaryX, y) == 0 and temporaryX != x):break
         elif(getColor(temporaryX, y) != color and getColor(temporaryX, y) != 0 and getColor(temporaryX, y) != 3): isEating = True
     isEating = False
     for temporaryX in range(0, x + 1):
@@ -83,6 +86,7 @@ def detectPawn(color, x, y):
             pawnList.append((x - temporaryX, y))
             break
         elif(getColor(x - temporaryX, y) == color and (x - temporaryX) != x and not isEating):break
+        elif(getColor(x - temporaryX, y) == 0 and (x - temporaryX) != x):break
         elif(getColor(x - temporaryX, y) != color and getColor(x - temporaryX, y) != 0 and getColor(x - temporaryX, y) != 3): isEating = True
     isEating = False
     diagonal1, diagonal2, diagonal3, diagonal4 = getNextPawnDiagonal(color, 1, 1, x, y), getNextPawnDiagonal(color, 1, -1, x, y), getNextPawnDiagonal(color, -1, 1, x, y), getNextPawnDiagonal(color, -1, -1, x, y)
@@ -90,6 +94,7 @@ def detectPawn(color, x, y):
     if(diagonal2 != None):pawnList.append(diagonal2) #Diagonale + -
     if(diagonal3 != None):pawnList.append(diagonal3) #Diagonale - +
     if(diagonal4 != None):pawnList.append(diagonal4) #Diagonale - -
+    print(pawnList)
     return pawnList
 
 def getNextPawnDiagonal(color, directionX, directionY, x, y):
