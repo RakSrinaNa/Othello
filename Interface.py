@@ -2,12 +2,12 @@
 '''
 @author: Olivier Froger
 '''
-from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END
+from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage
 from Game import init, getColor, place, getNumberColor
 from random import randrange
 import time
 
-colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, colors, color_player = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, ["red", "green", "yellow", "blue"], "orange"
+colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, colors, color_player = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, "black", "blue"
 
 def a_accent_maj():
     """
@@ -45,6 +45,7 @@ def initialisation():
     Permet d'initialiser par default
     """
     init()
+    canvasGrille.delete("pion")
     refresh()
 
 def refresh():
@@ -66,11 +67,15 @@ def placer_pion(color, x, y):
         x -> La position x (Horizontale)
         y -> La position y (verticale)
     """
-    offsetGrid, backgroundColor, borderLineColor = 5, colorVert, "black"
+    #photo1 = PhotoImage(file ="pionvert.gif")
+    #pionVert = canvasGrille.create_image(226, 226, image =photo1)
+    #photo2 = PhotoImage(file ="piongris.gif")
+    #pionGris = canvasGrille.create_image(226, 226, image =photo2)
+    offsetGrid, borderLineColor, backgroundColor = 5, "black", colorVert
     if color == blanc: backgroundColor = "white"
     elif color == noir: backgroundColor = "black"
-    else: borderLineColor = colorVert
-    canvasGrille.create_oval(gridOffsetCanvas + (x * tailleCase) + offsetGrid, gridOffsetCanvas + (y * tailleCase) + offsetGrid, gridOffsetCanvas + (tailleCase * (x + 1)) - offsetGrid, gridOffsetCanvas + (tailleCase * (y + 1)) - offsetGrid, fill = backgroundColor, outline = borderLineColor)
+    else: return
+    canvasGrille.create_oval(gridOffsetCanvas + (x * tailleCase) + offsetGrid, gridOffsetCanvas + (y * tailleCase) + offsetGrid, gridOffsetCanvas + (tailleCase * (x + 1)) - offsetGrid, gridOffsetCanvas + (tailleCase * (y + 1)) - offsetGrid, tags = "pion", fill = backgroundColor, outline = borderLineColor)
 
 def mettre_pion(event):
     """
@@ -118,7 +123,7 @@ def parler(event = None):
     """
     Permet au joueur d'envoyer un message dans le chat
     """
-    textTraitment(chatEntry.get(), "player", str(pseudoEntry.get()), colors[randrange(len(colors))])
+    textTraitment(chatEntry.get(), "player", str(pseudoEntry.get()), colors)
     chatEntry.delete(0, END) 
 
 def textTraitment(text, user, name, color):
@@ -155,7 +160,7 @@ def connexion():
     connexionButton.place_forget()
     textLabel.config(state = NORMAL)
     textLabel.config(fg = "red")
-    textTraitment("Vous " + e_circonflexe() + "tes connect" + e_grave() + " chatEntry tant que " + str(pseudoEntry.get()), "system", "Syst" + e_grave() + "me", "orange")
+    textTraitment("Vous " + e_circonflexe() + "tes connect" + e_aigu() + " en tant que " + str(pseudoEntry.get()), "system", "Syst" + e_grave() + "me", "red")
     
 fenetre = Tk()
 fenetre.title("Othello")
@@ -181,7 +186,9 @@ canvasInfos = Canvas(fenetre, bg = colorVert, height = 450, width = 365)
 canvasInfos.place(x = 435, y =0)
 canvasGrille = Canvas(fenetre, bg = colorVert, height = 450, width = 435)
 canvasGrille.place(x = 0, y = 0)
-canvasGrille.bind("<Button-1>", mettre_pion) 
+canvasGrille.bind("<Button-1>", mettre_pion)
+photo = PhotoImage(file ="fond.gif")
+item = canvasGrille.create_image(226, 226, image =photo)
 Label(canvasGrille, text = "A", font = Comic, bg = colorVert).place(x = 45, y = yOffsetCanvas)
 Label(canvasGrille, text = "B", font = Comic, bg = colorVert).place(x = 95, y = yOffsetCanvas)
 Label(canvasGrille, text = "C", font = Comic, bg = colorVert).place(x = 145, y = yOffsetCanvas)
@@ -222,8 +229,8 @@ Button(fenetre, text = "Nouvelle partie", command = initialisation).place(x = 71
 chatEntry = Entry(canvasInfos, width = 35)
 chatEntry.bind("<Return>", parler)
 chatEntry.place(x = 40, y = 400)
-textLabel = Text(canvasInfos, state = DISABLED, width = 35, height = 8, font = ("comic sans ms", 10))
+textLabel = Text(canvasInfos, state = DISABLED, width = 41, height = 8, font = ("comic sans ms", 10))
 textLabel.config(fg = "black")
-textLabel.place(x = 40, y = 200)
+textLabel.place(x = 20, y = 185)
 Button(fenetre, text = "Envoyer", command = parler).place(x = 710, y = 400)
 fenetre.mainloop()
