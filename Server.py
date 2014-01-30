@@ -1,24 +1,25 @@
 '''
 @author: Johann Jacques
 '''
+
 import socket
 import select
 import threading
 
 class ThreadServer(threading.Thread):
-    def __init__(self, hh, pp):
+    def __init__(self, tHote, tPort):
         threading.Thread.__init__(self)
-        self.hot = hh
-        self.por = pp
+        self.hote = tHote
+        self.port = tPort
         self.nom = "TServer"
         self.Terminated = False
         self.start()
         
     def run(self):
         connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexionPrincipale.bind((self.hot, self.por))
+        connexionPrincipale.bind((self.hote, self.port))
         connexionPrincipale.listen(5)
-        server = "Bienvenue sur le serveur OTHELLO(port : {})".format(self.por)
+        server = "Bienvenue sur le serveur OTHELLO(port : {})".format(self.port)
         print("\n" + server.upper().center(85) + "\nTraitement des donnees :\n")
         clientsConnectes = []
         while not self.Terminated:
@@ -32,11 +33,11 @@ class ThreadServer(threading.Thread):
             except select.error:
                 pass
             for client in clientsALire:
-                   messageRecu = client.recv(1024)
-                   messageRecu = messageRecu.decode()
-                   print("> " + messageRecu)
-                   messageRecu = messageRecu.encode()
-                   client.send(messageRecu)  
+                messageRecu = client.recv(1024)
+                messageRecu = messageRecu.decode()
+                print("> " + messageRecu)
+                messageRecu = messageRecu.encode()
+                client.send(messageRecu)  
         print("Fermeture des connexions")
         for client in clientsConnectes:
             client.close()
@@ -45,14 +46,14 @@ class ThreadServer(threading.Thread):
     def stop(self):
         self.Terminated = True
 
-def lancement(h,p=50000):
-    global t
-    t = ThreadServer(h, p)
+def lancement(hote, port = 50000):
+    global serverThread
+    serverThread = ThreadServer(hote, port)
 
 def arret():
-    global t
-    t.stop()
+    global serverThread
+    serverThread.stop()
     
-global t
-t = None
+global serverThread
+serverThread = None
 lancement("192.168.228.177")
