@@ -4,7 +4,6 @@
 '''
 from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage
 from Game import init, getColor, place, getNumberColor
-from random import randrange
 import time
 
 colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, colors, color_player = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, "black", "blue"
@@ -174,7 +173,7 @@ menufichier.add_command(label = "Nouvelle partie", command = initialisation)
 menufichier.add_command(label = "Pr" + e_aigu() + "f" + e_aigu() + "rences", command = preferences)
 menufichier.add_command(label = "Quitter", command = fenetre.destroy)
 
-menuaide= Menu(menubar,tearoff=0)
+menuaide = Menu(menubar, tearoff = 0)
 menuaide.add_command(label = "R" + e_grave() + "gles du jeu", command = regles)
 menuaide.add_command(label = a_accent_maj() + " propos de", command = a_propos)
 
@@ -183,7 +182,7 @@ menubar.add_cascade(label = "Aide", menu = menuaide)
 
 fenetre.config(menu = menubar)
 canvasInfos = Canvas(fenetre, bg = colorVert, height = 450, width = 365)
-canvasInfos.place(x = 435, y =0)
+canvasInfos.place(x = 435, y = 0)
 canvasGrille = Canvas(fenetre, bg = colorVert, height = 450, width = 435)
 canvasGrille.place(x = 0, y = 0)
 canvasGrille.bind("<Button-1>", mettre_pion)

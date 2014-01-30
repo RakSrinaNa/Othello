@@ -4,26 +4,25 @@
 
 import socket
 import threading
-from tkinter import*
 
 class ThreadClient(threading.Thread):
-    def __init__(self, hh, pp):
+    def __init__(self, tHote, tPort):
         threading.Thread.__init__(self)
-        self.hot = hh
-        self.por = pp
+        self.hote = tHote
+        self.port = tPort
         self.nom = "TClient"
-        self.aenvoyer = ""
+        self.aEnvoyer = ""
         self.Terminated = False
         self.start()
         
     def run(self):
         connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexionServeur.connect((self.hot, self.por))
-        print("\nConnexion etablie avec le serveur sur le port " + str(self.por))
+        connexionServeur.connect((self.hote, self.port))
+        print("\nConnexion etablie avec le serveur sur le port " + str(self.port))
         message = ""
         while not self.Terminated:
-            if message != self.aenvoyer:
-                message = self.aenvoyer
+            if message != self.aEnvoyer:
+                message = self.aEnvoyer
                 connexionServeur.send(message.encode())
                 messageRecu = connexionServeur.recv(1024).decode()
                 print("Reponse serveur: " + str(messageRecu))
@@ -32,39 +31,24 @@ class ThreadClient(threading.Thread):
         
     def stop(self):
         self.Terminated = True
+        
+    def setAEnvoyer(self, message):
+        self.aEnvoyer = message
 
-    def envoyer(self, mess):
-        self.aenvoyer=mess
+def envoi(messageType, *args):
+    global clientThread
+    message = str(messageType)
+    for arg in args: message += str(arg)
+    clientThread.setAEnvoyer(message)
 
-def envoii():
-    envoi(chatEntry.get(), "")
-
-def envoi(mtype, *args):
-    global t
-    message = str(mtype)
-    for arg in args:
-        message += str(arg)
-    t.envoyer(message)
-
-def lancement(h,p=50000):
-    global t
-    t = ThreadClient(h, p)
+def lancement(hote, port = 50000):
+    global clientThread
+    clientThread = ThreadClient(hote, port)
 
 def arret():
-    global t
-    t.stop()
+    global clientThread
+    clientThread.stop()
     
-global t
-t = None
-fenetre = Tk()
-fenetre.title("Othello")
-fenetre.geometry("800x450")
-fenetre.resizable(0, 0)
+global clientThread
+clientThread = None
 lancement("192.168.229.132")
-canvasInfos = Canvas(fenetre, bg = "green", height = 450, width = 365)
-canvasInfos.place(x = 435, y =0)
-chatEntry = Entry(canvasInfos, width = 35)
-chatEntry.bind("<Return>", envoii)
-chatEntry.place(x = 40, y = 400)
-Button(fenetre, text = "Envoyer", command = envoii).place(x = 710, y = 400)
-fenetre.mainloop()
