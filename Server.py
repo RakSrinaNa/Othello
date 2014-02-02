@@ -20,7 +20,7 @@ class ThreadServer(threading.Thread):
         connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connexionPrincipale.bind((self.hote, self.port))
         connexionPrincipale.listen(5)
-        server = "Bienvenue sur le serveur OTHELLO(port : {})".format(self.port)
+        server = "Bienvenue sur le serveur OTHELLO ({}:{})".format(self.hote, self.port)
         print("\n" + server.upper().center(85) + "\nTraitement des donnees :\n")
         clientsConnectes = []
         while not self.Terminated:
