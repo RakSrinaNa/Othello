@@ -7,9 +7,9 @@ import select
 import threading
 
 class ThreadServer(threading.Thread):
-    def __init__(self, tHote, tPort):
+    def __init__(self ,tHote, tPort):
         threading.Thread.__init__(self)
-        self.hote = tHote
+        self.hote = thote
         self.port = tPort
         self.nom = "TServer"
         self.Terminated = False
@@ -46,7 +46,7 @@ class ThreadServer(threading.Thread):
     def stop(self):
         self.Terminated = True
 
-def lancement(hote, port = 50000):
+def lancement(hote = gethostbyname(gethostname()), port = 50000):
     global serverThread
     serverThread = ThreadServer(hote, port)
 
@@ -56,4 +56,4 @@ def arret():
     
 global serverThread
 serverThread = None
-lancement("192.168.228.177")
+lancement()
