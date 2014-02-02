@@ -61,46 +61,37 @@ def detectPawn(color, x, y): #TODO: With functions
         Une liste de tableaux bi-dimensionnels contenant les positions des pions trouves
     """
     pawnList = []
-    isEating = False
-    for temporaryY in range(y, 8):
-        if(getColor(x, temporaryY) == color and temporaryY != y and isEating): #Verifie dans la ligne horizontale en dessous
-            pawnList.append((x, temporaryY))
-            break
-        elif(getColor(x, temporaryY) == color and temporaryY != y and not isEating): break
-        elif(getColor(x, temporaryY) == 0 and temporaryY != y): break
-        elif(getColor(x, temporaryY) != color and getColor(x, temporaryY) != 0 and getColor(x, temporaryY) != 3): isEating = True
-    isEating = False
-    for temporaryY in range(0, y + 1):
-        if(getColor(x, y - temporaryY) == color and (y - temporaryY) != y and isEating): #Verifie dans la ligne horizontale au dessus
-            pawnList.append((x, y - temporaryY))
-            break
-        elif(getColor(x, y - temporaryY) == color and (y - temporaryY) != y and not isEating): break
-        elif(getColor(x, y - temporaryY) == 0 and (y - temporaryY) != y): break
-        elif(getColor(x, y - temporaryY) != color and getColor(x, y - temporaryY) != 0 and getColor(x, y - temporaryY) != 3): isEating = True
-    isEating = False
-    for temporaryX in range(x, 8):
-        if(getColor(temporaryX, y) == color and temporaryX != x and isEating): #Verifie dans la ligne verticale a droite
-            pawnList.append((temporaryX, y))
-            break
-        elif(getColor(temporaryX, y) == color and temporaryX != x and not isEating):break
-        elif(getColor(temporaryX, y) == 0 and temporaryX != x):break
-        elif(getColor(temporaryX, y) != color and getColor(temporaryX, y) != 0 and getColor(temporaryX, y) != 3): isEating = True
-    isEating = False
-    for temporaryX in range(0, x + 1):
-        if(getColor(x - temporaryX, y) == color and (x - temporaryX) != x and isEating): #Verifie dans la ligne verticale a gauche
-            pawnList.append((x - temporaryX, y))
-            break
-        elif(getColor(x - temporaryX, y) == color and (x - temporaryX) != x and not isEating):break
-        elif(getColor(x - temporaryX, y) == 0 and (x - temporaryX) != x):break
-        elif(getColor(x - temporaryX, y) != color and getColor(x - temporaryX, y) != 0 and getColor(x - temporaryX, y) != 3): isEating = True
-    isEating = False
-    diagonal1, diagonal2, diagonal3, diagonal4 = getNextPawnDiagonal(color, 1, 1, x, y), getNextPawnDiagonal(color, 1, -1, x, y), getNextPawnDiagonal(color, -1, 1, x, y), getNextPawnDiagonal(color, -1, -1, x, y)
-    if(diagonal1 != None):pawnList.append(diagonal1) #Diagonale + +
-    if(diagonal2 != None):pawnList.append(diagonal2) #Diagonale + -
-    if(diagonal3 != None):pawnList.append(diagonal3) #Diagonale - +
-    if(diagonal4 != None):pawnList.append(diagonal4) #Diagonale - -
+    pawnList.append(getNextPawnLine(color, 1, 0, x, y)) #Horizontal -
+    pawnList.append(getNextPawnLine(color, -1, 0, x, y)) #Horizontal +
+    pawnList.append(getNextPawnLine(color, 0, 1, x, y)) #Vertical +
+    pawnList.append(getNextPawnLine(color, 0, -1, x, y)) #Vertical -
+    pawnList.append(getNextPawnDiagonal(color, 1, 1, x, y)) #Diagonale + +
+    pawnList.append(getNextPawnDiagonal(color, 1, -1, x, y)) #Diagonale + -
+    pawnList.append(getNextPawnDiagonal(color, -1, 1, x, y)) #Diagonale - +
+    pawnList.append(getNextPawnDiagonal(color, -1, -1, x, y)) #Diagonale - -
     print(pawnList)
     return pawnList
+
+def getNextPawnLine(color, directionX, directionY, x, y):
+    direction = 0
+    isEating = False
+    if(directionX != 0 and directionX != 0): return
+    elif(directionY == 1): direction = 1
+    for temporaryPos in range(1, 8):
+        if(direction == 1): #Vertical
+            if(getColor(x, int(y + copysign(temporaryPos, directionY))) == 3): return #Hors de la grille
+            elif(getColor(x, int(y + copysign(temporaryPos, directionY))) == color and int(y + copysign(temporaryPos, directionY)) != y and isEating): #Verifie dans la ligne horizontale
+                return (x, int(y + copysign(temporaryPos, directionY)))
+            elif(getColor(x, int(y + copysign(temporaryPos, directionY))) == color and int(y + copysign(temporaryPos, directionY)) != y and not isEating): return
+            elif(getColor(x, int(y + copysign(temporaryPos, directionY))) == 0 and int(y + copysign(temporaryPos, directionY)) != y): return
+            elif(getColor(x, int(y + copysign(temporaryPos, directionY))) != color and getColor(x, int(y + copysign(temporaryPos, directionY))) != 0 and getColor(x, int(y + copysign(temporaryPos, directionY))) != 3): isEating = True
+        else: #Horizontal
+            if(getColor(int(x + copysign(temporaryPos, directionX)), y) == 3): return #Hors de la grille
+            elif(getColor(int(x + copysign(temporaryPos, directionX)), y) == color and int(x + copysign(temporaryPos, directionX)) != x and isEating): #Verifie dans la ligne horizontale
+                return (int(x + copysign(temporaryPos, directionX)), y)
+            elif(getColor(int(x + copysign(temporaryPos, directionX)), y) == color and int(x + copysign(temporaryPos, directionX)) != x and not isEating): return
+            elif(getColor(int(x + copysign(temporaryPos, directionX)), y) == 0 and int(x + copysign(temporaryPos, directionX)) != x): return
+            elif(getColor(int(x + copysign(temporaryPos, directionX)), y) != color and getColor(int(x + copysign(temporaryPos, directionX)), x) != 0 and getColor(int(x + copysign(temporaryPos, directionX)), y) != 3): isEating = True
 
 def getNextPawnDiagonal(color, directionX, directionY, x, y):
     """
@@ -191,6 +182,7 @@ def place(color, x , y):
     elif(getColor(x, y) != 0): return 1 #Si la case n'est aps vide, on ne peut pas jouer
     try:
         pawnList = detectPawn(color, x, y) #On recupere la liste des lignes a retourner
+        while(pawnList.count(None) > 0):pawnList.remove(None) #Retire les 'None' de la liste
         if(len(pawnList) < 1): return 2 #Si la liste est vide, aucun retournement n'est possible, on ne joue pas
         for l in pawnList: #Pour chque position de fin de ligne
             reverse(color, (x, y), l) #On retourne cette ligne avec la couleur du joueur
