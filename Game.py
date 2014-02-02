@@ -75,23 +75,25 @@ def detectPawn(color, x, y): #TODO: With functions
 def getNextPawnLine(color, directionX, directionY, x, y):
     direction = 0
     isEating = False
-    if(directionX != 0 and directionX != 0): return
-    elif(directionY == 1): direction = 1
+    if(directionX != 0 and directionY != 0): return
+    elif(abs(directionY) == 1): direction = 1
     for temporaryPos in range(1, 8):
         if(direction == 1): #Vertical
-            if(getColor(x, int(y + copysign(temporaryPos, directionY))) == 3): return #Hors de la grille
-            elif(getColor(x, int(y + copysign(temporaryPos, directionY))) == color and int(y + copysign(temporaryPos, directionY)) != y and isEating): #Verifie dans la ligne horizontale
-                return (x, int(y + copysign(temporaryPos, directionY)))
-            elif(getColor(x, int(y + copysign(temporaryPos, directionY))) == color and int(y + copysign(temporaryPos, directionY)) != y and not isEating): return
-            elif(getColor(x, int(y + copysign(temporaryPos, directionY))) == 0 and int(y + copysign(temporaryPos, directionY)) != y): return
-            elif(getColor(x, int(y + copysign(temporaryPos, directionY))) != color and getColor(x, int(y + copysign(temporaryPos, directionY))) != 0 and getColor(x, int(y + copysign(temporaryPos, directionY))) != 3): isEating = True
+            tempY = int(y + copysign(temporaryPos, directionY))
+            if(getColor(x, tempY) == 3): return #Hors de la grille
+            elif(getColor(x, tempY) == color and tempY != y and isEating): #Verifie dans la ligne horizontale
+                return (x, tempY)
+            elif(getColor(x, tempY) == color and tempY != y and not isEating): return
+            elif(getColor(x, tempY) == 0 and tempY != y): return
+            elif(getColor(x, tempY) != color and getColor(x, tempY) != 0 and getColor(x, tempY) != 3): isEating = True
         else: #Horizontal
-            if(getColor(int(x + copysign(temporaryPos, directionX)), y) == 3): return #Hors de la grille
-            elif(getColor(int(x + copysign(temporaryPos, directionX)), y) == color and int(x + copysign(temporaryPos, directionX)) != x and isEating): #Verifie dans la ligne horizontale
-                return (int(x + copysign(temporaryPos, directionX)), y)
-            elif(getColor(int(x + copysign(temporaryPos, directionX)), y) == color and int(x + copysign(temporaryPos, directionX)) != x and not isEating): return
-            elif(getColor(int(x + copysign(temporaryPos, directionX)), y) == 0 and int(x + copysign(temporaryPos, directionX)) != x): return
-            elif(getColor(int(x + copysign(temporaryPos, directionX)), y) != color and getColor(int(x + copysign(temporaryPos, directionX)), x) != 0 and getColor(int(x + copysign(temporaryPos, directionX)), y) != 3): isEating = True
+            tempX = int(x + copysign(temporaryPos, directionX))
+            if(getColor(tempX, y) == 3): return #Hors de la grille
+            elif(getColor(tempX, y) == color and tempX != x and isEating): #Verifie dans la ligne horizontale
+                return (tempX, y)
+            elif(getColor(tempX, y) == color and tempX != x and not isEating): return
+            elif(getColor(tempX, y) == 0 and tempX != x): return
+            elif(getColor(tempX, y) != color and getColor(tempX, x) != 0 and getColor(tempX, y) != 3): isEating = True
 
 def getNextPawnDiagonal(color, directionX, directionY, x, y):
     """
