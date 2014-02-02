@@ -2,6 +2,11 @@
 '''
 @author: Olivier Froger
 '''
+#Pour changer la couleur des pions, mettre des radio button dans "preferences", qui changeront la couleur dans une variable 
+#et mettre la variable dans mettre_pion
+#http://www.tutorialspoint.com/python/tk_radiobutton.htm
+#w = Radiobutton ( master, option, ...  )
+#text, textvariable, value, select()
 from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage
 from Game import init, getColor, place, getNumberColor
 import time
