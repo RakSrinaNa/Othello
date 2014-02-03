@@ -2,17 +2,11 @@
 '''
 @author: Olivier Froger
 '''
-#Pour changer la couleur des pions, mettre des radio button dans "preferences", qui changeront la couleur dans une variable 
-#et mettre la variable dans mettre_pion
-#http://www.tutorialspoint.com/python/tk_radiobutton.htm
-#w = Radiobutton ( master, option, ...  )
-#text, textvariable, value, select()
-from tkinter import*
-#from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage, Radiobutton
+from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage, Radiobutton, Toplevel
 from Game import init, getColor, place, getNumberColor
 import time
 
-colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, colors, color_player, colorPion1, colorPion2 = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, "black", "blue", "white", "black"
+colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, chatColor, colorPlayerChat, colorPion1, colorPion2 = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, "black", "blue", "white", "black"
 
 def a_accent_maj():
     """
@@ -53,9 +47,17 @@ def initialisation():
     canvasGrille.delete("pion")
     refresh()
 
+def refreshBG(): #A faire
+    """
+    Permet de mettre a jour le fond de jeu
+    """
+    canvasGrille.delete("fond")
+    photo = PhotoImage(file = backgroundPrefs.get()) #Ne trouve pas l'immage...
+    canvasGrille.create_image(226, 226, image = photo, tags = "fond")
+
 def refresh():
     """
-    Permet les informations de jeu
+    Permet de rafraichir les informations de jeu
     """
     for x in range(0, 8):
         for y in range(0, 8):
@@ -93,7 +95,7 @@ def mettre_pion(event):
 
 def regles():
     """
-    Permet d'afficher la fenetre des regles
+    Permet d'afficher la fenetrePrincipale des regles
     """
     fenetreRegles = Tk()
     fenetreRegles.title("R" + e_grave() + "gles du jeu")
@@ -103,58 +105,49 @@ def regles():
 
 def preferences():
     """
-    Permet d'afficher la fenetre des preferences
+    Permet d'afficher la fenetrePrincipale des preferences
     """
-    global fenetrePreferences
+    global fenetrePreferences, colorPion1, colorPion2
     fenetrePreferences = Toplevel()
     fenetrePreferences.title("Pr" + e_aigu() + "f" + e_aigu() + "rences")
     fenetrePreferences.geometry("500x500")
     fenetrePreferences.resizable(0, 0)
-    Canvaspion1 = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 250)
-    Canvaspion2 = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 250)
-    Canvasplateau = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 500)
-    Canvaspion1.place(x = 0, y = 0)
-    Canvaspion2.place(x = 250, y = 0)
-    Canvasplateau.place(x = 0, y = 250)
-    Label(Canvaspion1, bg = "gray", font = Comic2, text = "Pion 1").place(x = 10, y = 10)
-    Label(Canvaspion2, bg = "gray", font = Comic2, text = "Pion 2").place(x = 10, y = 10)
-    Label(Canvasplateau, bg = "gray", font = Comic2, text = "Plateau").place(x = 5, y = 5)
-    global p1
-    global p2
-    global p3
-    global colorPion1
-    global colorPion2
-    p1 = StringVar()
-    p2 = StringVar()
-    p3 = StringVar()
-    p1.set("W")
-    p2.set("N")
-    couleur1_1 = Radiobutton (Canvaspion1, text = "blanc", bg = "gray", value = "W", variable = p1)
-    couleur1_2 = Radiobutton (Canvaspion1, text = "orange", bg = "gray", value = "O", variable = p1)
-    couleur2_1 = Radiobutton (Canvaspion2, text = "noir", bg = "gray", value = "N", variable = p2)
-    couleur2_2 = Radiobutton (Canvaspion2, text = "bleu", bg = "gray", value = "B", variable = p2)
-    couleur3_1 = Radiobutton (Canvasplateau, text = "bois", bg = "gray", value = 0, variable = p3)
-    couleur3_2 = Radiobutton (Canvasplateau, text = "tapis", bg = "gray", value = 1, variable = p3)
-    couleur1_1.place(x = 10, y = 80)
-    couleur1_2.place(x = 10, y = 100)
-    couleur2_1.place(x = 10, y = 80)
-    couleur2_2.place(x = 10, y = 100)
-    couleur3_1.place(x = 10, y = 80)
-    couleur3_2.place(x = 10, y = 100) 
-    Button(Canvasplateau, text = "Valider", command = appli_preferences).place(x = 230, y = 200)
+    canvasPion1Prefs = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 250)
+    canvasPion2Prefs = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 250)
+    canvasPlateauPrefs = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 500)
+    canvasPion1Prefs.place(x = 0, y = 0)
+    canvasPion2Prefs.place(x = 250, y = 0)
+    canvasPlateauPrefs.place(x = 0, y = 250)
+    Label(canvasPion1Prefs, bg = "gray", font = Comic2, text = "Pion 1").place(x = 10, y = 10)
+    Label(canvasPion2Prefs, bg = "gray", font = Comic2, text = "Pion 2").place(x = 10, y = 10)
+    Label(canvasPlateauPrefs, bg = "gray", font = Comic2, text = "Plateau").place(x = 5, y = 5)
+    colorsListP1 = [("Blanc", "white"), ("Orange", "orange")]
+    colorsListP2 = [("Noir", "black"), ("Bleu", "blue")]
+    backgroundsList = [("Bois", "fond.gif"), ("Nounours", "pedobear.gif")]  # TODO add backgrounds ("nomAAfficher", "nomDeLImage.xxx")
+    tempValue = 0
+    for tempText, tempColor in colorsListP1:
+        Radiobutton(canvasPion1Prefs, text = tempText, bg = "gray", value = tempColor, variable = colorPion1Prefs).place(x = 10, y = 80 + 20 * tempValue)
+        tempValue += 1
+    tempValue = 0
+    for tempText, tempColor in colorsListP2:
+        Radiobutton(canvasPion2Prefs, text = tempText, bg = "gray", value = tempColor, variable = colorPion2Prefs).place(x = 10, y = 80 + 20 * tempValue)
+        tempValue += 1
+    tempValue = 0
+    for tempText, tempColor in backgroundsList:
+        Radiobutton(canvasPlateauPrefs, text = tempText, bg = "gray", value = tempColor, variable = backgroundPrefs).place(x = 10, y = 80 + 20 * tempValue)
+        tempValue += 1
+    Button(canvasPlateauPrefs, text = "Valider", command = appli_preferences).place(x = 230, y = 200)
     fenetrePreferences.mainloop()
-    
+
 def appli_preferences():
-    global fenetrePreferences
-    global p1
-    global p2
-    global p3
-    global colorPion1
-    global colorPion2
-    if p1.get() == "W":
+    """
+    Permet d'appliquer les changements de preferences a l'interface
+    """
+    global fenetrePreferences, colorPion1, colorPion2
+    if colorPion1Prefs.get() == "white":
         colorPion1 = "white"
     else: colorPion1 = "orange"
-    if p2.get() == "N":
+    if colorPion2Prefs.get() == "black":
         colorPion2 = "black"
     else: colorPion2 = "blue"
     count1Label.config(fg = colorPion1)
@@ -164,7 +157,7 @@ def appli_preferences():
 
 def a_propos():
     """
-    Permet d'afficher la fenetre a propos
+    Permet d'afficher la fenetrePrincipale a propos
     """
     fenetreAPropos = Tk()
     fenetreAPropos.title(a_accent_maj() + " propos de")
@@ -176,7 +169,7 @@ def parler(event = None):
     """
     Permet au joueur d'envoyer un message dans le chat
     """
-    textTraitment(chatEntry.get(), "player", str(pseudoEntry.get()), colors)
+    textTraitment(chatEntry.get(), "player", str(pseudoEntry.get()), chatColor)
     chatEntry.delete(0, END) 
 
 def textTraitment(text, user, name, color):
@@ -196,11 +189,11 @@ def textTraitment(text, user, name, color):
     textLabel.insert(0.0, text + "\n")
     textLabel.tag_configure(color, foreground = color)
     textLabel.tag_add(color, "1." + str(len(textTime + str(name) + " -> ")), "1." + str(len(text)))
-    color_user = "black"
-    if(user == "player"): color_user = color_player
-    elif(user == "system"): color_user = "red"
-    else: color_user = "black"
-    textLabel.tag_configure("name", foreground = color_user)
+    colorUser = "black"
+    if(user == "player"): colorUser = colorPlayerChat
+    elif(user == "system"): colorUser = "red"
+    else: colorUser = "black"
+    textLabel.tag_configure("name", foreground = colorUser)
     textLabel.tag_add("name", "1." + str(len(textTime)), "1." + str(len(textTime + name)))
     textLabel.config(state = DISABLED)
 
@@ -215,17 +208,22 @@ def connexion():
     textLabel.config(fg = "red")
     textTraitment("Vous " + e_circonflexe() + "tes connect" + e_aigu() + " en tant que " + str(pseudoEntry.get()), "system", "Syst" + e_grave() + "me", "red")
     
-fenetre = Tk()
-fenetre.title("Othello")
-fenetre.geometry("800x450")
-fenetre.resizable(0, 0)
+fenetrePrincipale = Tk()
+fenetrePrincipale.title("Othello")
+fenetrePrincipale.geometry("800x450")
+fenetrePrincipale.resizable(0, 0)
 
-menubar = Menu(fenetre)
+colorPion1Prefs, colorPion2Prefs, backgroundPrefs = StringVar(), StringVar(), StringVar()
+colorPion1Prefs.set("white")
+colorPion2Prefs.set("black")
+backgroundPrefs.set("fond.gif")  # TODO set default background
+
+menubar = Menu(fenetrePrincipale)
      
 menufichier = Menu(menubar, tearoff = 0)
 menufichier.add_command(label = "Nouvelle partie", command = initialisation)
 menufichier.add_command(label = "Pr" + e_aigu() + "f" + e_aigu() + "rences", command = preferences)
-menufichier.add_command(label = "Quitter", command = fenetre.destroy)
+menufichier.add_command(label = "Quitter", command = fenetrePrincipale.destroy)
 
 menuaide = Menu(menubar, tearoff = 0)
 menuaide.add_command(label = "R" + e_grave() + "gles du jeu", command = regles)
@@ -234,18 +232,13 @@ menuaide.add_command(label = a_accent_maj() + " propos de", command = a_propos)
 menubar.add_cascade(label = "Fichier", menu = menufichier)
 menubar.add_cascade(label = "Aide", menu = menuaide)
 
-
-
-
-
-fenetre.config(menu = menubar)
-canvasInfos = Canvas(fenetre, bg = colorVert, height = 450, width = 365)
+fenetrePrincipale.config(menu = menubar)
+canvasInfos = Canvas(fenetrePrincipale, bg = colorVert, height = 450, width = 365)
 canvasInfos.place(x = 435, y = 0)
-canvasGrille = Canvas(fenetre, bg = colorVert, height = 450, width = 435)
+canvasGrille = Canvas(fenetrePrincipale, bg = colorVert, height = 450, width = 435)
 canvasGrille.place(x = 0, y = 0)
 canvasGrille.bind("<Button-1>", mettre_pion)
-photo = PhotoImage(file ="fond.gif")
-item = canvasGrille.create_image(226, 226, image =photo)
+refreshBG()
 Label(canvasGrille, text = "A", font = Comic, bg = colorVert).place(x = 45, y = yOffsetCanvas)
 Label(canvasGrille, text = "B", font = Comic, bg = colorVert).place(x = 95, y = yOffsetCanvas)
 Label(canvasGrille, text = "C", font = Comic, bg = colorVert).place(x = 145, y = yOffsetCanvas)
@@ -262,11 +255,11 @@ Label(canvasGrille, text = "5", font = Comic, bg = colorVert).place(x = xOffsetC
 Label(canvasGrille, text = "6", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 290)
 Label(canvasGrille, text = "7", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 340)
 Label(canvasGrille, text = "8", font = Comic, bg = colorVert).place(x = xOffsetCanvas, y = 390)
-Label(fenetre, text = "Othello", font = Comic2, bg = colorVert).place(x = 570, y = 35)
+Label(fenetrePrincipale, text = "Othello", font = Comic2, bg = colorVert).place(x = 570, y = 35)
 Label(canvasInfos, text = "Psuedo:", font = Comic, bg = colorVert).place(x = 5, y = 2)
-pseudoEntry=Entry(canvasInfos)
+pseudoEntry = Entry(canvasInfos)
 pseudoEntry.place(x = 50, y = 2)
-connexionButton=Button(canvasInfos, text = "Connexion", command = connexion)
+connexionButton = Button(canvasInfos, text = "Connexion", command = connexion)
 connexionButton.place(x = 185, y = 2)
 count1Var = StringVar()
 count2Var = StringVar()
@@ -282,12 +275,13 @@ for i in range(0, 9):
     y1 += tailleCase
     x2 += tailleCase
     
-Button(fenetre, text = "Nouvelle partie", command = initialisation).place(x = 710, y = 1)
+Button(fenetrePrincipale, text = "Nouvelle partie", command = initialisation).place(x = 710, y = 1)
 chatEntry = Entry(canvasInfos, width = 35)
 chatEntry.bind("<Return>", parler)
 chatEntry.place(x = 40, y = 400)
 textLabel = Text(canvasInfos, state = DISABLED, width = 41, height = 8, font = ("comic sans ms", 10))
 textLabel.config(fg = "black")
 textLabel.place(x = 20, y = 185)
-Button(fenetre, text = "Envoyer", command = parler).place(x = 710, y = 400)
-fenetre.mainloop()
+Button(fenetrePrincipale, text = "Envoyer", command = parler).place(x = 710, y = 400)
+    
+fenetrePrincipale.mainloop()
