@@ -47,13 +47,13 @@ def initialisation():
     canvasGrille.delete("pion")
     refresh()
 
-def refreshBG(): #A faire
+def refreshBG():  # TODO
     """
     Permet de mettre a jour le fond de jeu
     """
     canvasGrille.delete("fond")
-    photo = PhotoImage(file = backgroundPrefs.get()) #Ne trouve pas l'immage...
-    canvasGrille.create_image(226, 226, image = photo, tags = "fond")
+    photo = PhotoImage(file = backgroundPrefs.get())
+    canvasGrille.create_image(226, 226, image = photo, tags = "fond")  # L'image ne s'affiche pas
 
 def refresh():
     """
