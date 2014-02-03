@@ -2,13 +2,12 @@
 @author: Johann Jacques
 '''
 
-from socket import gethostbyname, gethostname
 import socket
 import select
 import threading
 
 class ThreadServer(threading.Thread):
-    def __init__(self , tHote = gethostbyname(gethostname()), tPort = 50000):
+    def __init__(self , tHote = socket.gethostbyname(socket.gethostname()), tPort = 50000):
         threading.Thread.__init__(self)
         self.hote = tHote
         self.port = tPort
