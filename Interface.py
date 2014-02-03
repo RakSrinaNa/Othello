@@ -153,6 +153,7 @@ def appli_preferences():
     count1Label.config(fg = colorPion1)
     count2Label.config(fg = colorPion2)
     refresh()
+    refreshBG()
     fenetrePreferences.destroy()
 
 def a_propos():
