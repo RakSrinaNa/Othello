@@ -7,39 +7,12 @@
 #http://www.tutorialspoint.com/python/tk_radiobutton.htm
 #w = Radiobutton ( master, option, ...  )
 #text, textvariable, value, select()
-#[Obsidian]
-#definition-foreground = #678CB1
-#error-foreground = #FF0000
-#string-background = #293134
-#keyword-foreground = #93C763
-#normal-foreground = #E0E2E4
-#comment-background = #293134
-#hit-foreground = #E0E2E4
-#builtin-background = #293134
-#stdout-foreground = #678CB1
-#cursor-foreground = #E0E2E4
-#break-background = #293134
-#comment-foreground = #66747B
-#hilite-background = #2F393C
-#hilite-foreground = #E0E2E4
-#definition-background = #293134
-#stderr-background = #293134
-#hit-background = #000000
-#console-foreground = #E0E2E4
-#normal-background = #293134
-#builtin-foreground = #E0E2E4
-#stdout-background = #293134
-#console-background = #293134
-#stderr-foreground = #FB0000
-#keyword-background = #293134
-#string-foreground = #EC7600
-#break-foreground = #E0E2E4
-#error-background = #293134
-from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage
+from tkinter import*
+#from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage, Radiobutton
 from Game import init, getColor, place, getNumberColor
 import time
 
-colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, colors, color_player = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, "black", "blue"
+colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, colors, color_player, colorPion1, colorPion2 = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, "black", "blue", "white", "black"
 
 def a_accent_maj():
     """
@@ -99,13 +72,10 @@ def placer_pion(color, x, y):
         x -> La position x (Horizontale)
         y -> La position y (verticale)
     """
-    #photo1 = PhotoImage(file ="pionvert.gif")
-    #pionVert = canvasGrille.create_image(226, 226, image =photo1)
-    #photo2 = PhotoImage(file ="piongris.gif")
-    #pionGris = canvasGrille.create_image(226, 226, image =photo2)
+    
     offsetGrid, borderLineColor, backgroundColor = 5, "black", colorVert
-    if color == blanc: backgroundColor = "white"
-    elif color == noir: backgroundColor = "black"
+    if color == blanc: backgroundColor = colorPion1
+    elif color == noir: backgroundColor = colorPion2
     else: return
     canvasGrille.create_oval(gridOffsetCanvas + (x * tailleCase) + offsetGrid, gridOffsetCanvas + (y * tailleCase) + offsetGrid, gridOffsetCanvas + (tailleCase * (x + 1)) - offsetGrid, gridOffsetCanvas + (tailleCase * (y + 1)) - offsetGrid, tags = "pion", fill = backgroundColor, outline = borderLineColor)
 
@@ -135,11 +105,62 @@ def preferences():
     """
     Permet d'afficher la fenetre des preferences
     """
-    fenetrePreferences = Tk()
+    global fenetrePreferences
+    fenetrePreferences = Toplevel()
     fenetrePreferences.title("Pr" + e_aigu() + "f" + e_aigu() + "rences")
     fenetrePreferences.geometry("500x500")
     fenetrePreferences.resizable(0, 0)
+    Canvaspion1 = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 250)
+    Canvaspion2 = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 250)
+    Canvasplateau = Canvas(fenetrePreferences, bg = "gray", height = 250, width = 500)
+    Canvaspion1.place(x = 0, y = 0)
+    Canvaspion2.place(x = 250, y = 0)
+    Canvasplateau.place(x = 0, y = 250)
+    Label(Canvaspion1, bg = "gray", font = Comic2, text = "Pion 1").place(x = 10, y = 10)
+    Label(Canvaspion2, bg = "gray", font = Comic2, text = "Pion 2").place(x = 10, y = 10)
+    Label(Canvasplateau, bg = "gray", font = Comic2, text = "Plateau").place(x = 5, y = 5)
+    global p1
+    global p2
+    global p3
+    global colorPion1
+    global colorPion2
+    p1 = StringVar()
+    p2 = StringVar()
+    p3 = StringVar()
+    p1.set("W")
+    p2.set("N")
+    couleur1_1 = Radiobutton (Canvaspion1, text = "blanc", bg = "gray", value = "W", variable = p1)
+    couleur1_2 = Radiobutton (Canvaspion1, text = "orange", bg = "gray", value = "O", variable = p1)
+    couleur2_1 = Radiobutton (Canvaspion2, text = "noir", bg = "gray", value = "N", variable = p2)
+    couleur2_2 = Radiobutton (Canvaspion2, text = "bleu", bg = "gray", value = "B", variable = p2)
+    couleur3_1 = Radiobutton (Canvasplateau, text = "bois", bg = "gray", value = 0, variable = p3)
+    couleur3_2 = Radiobutton (Canvasplateau, text = "tapis", bg = "gray", value = 1, variable = p3)
+    couleur1_1.place(x = 10, y = 80)
+    couleur1_2.place(x = 10, y = 100)
+    couleur2_1.place(x = 10, y = 80)
+    couleur2_2.place(x = 10, y = 100)
+    couleur3_1.place(x = 10, y = 80)
+    couleur3_2.place(x = 10, y = 100) 
+    Button(Canvasplateau, text = "Valider", command = appli_preferences).place(x = 230, y = 200)
     fenetrePreferences.mainloop()
+    
+def appli_preferences():
+    global fenetrePreferences
+    global p1
+    global p2
+    global p3
+    global colorPion1
+    global colorPion2
+    if p1.get() == "W":
+        colorPion1 = "white"
+    else: colorPion1 = "orange"
+    if p2.get() == "N":
+        colorPion2 = "black"
+    else: colorPion2 = "blue"
+    count1Label.config(fg = colorPion1)
+    count2Label.config(fg = colorPion2)
+    refresh()
+    fenetrePreferences.destroy()
 
 def a_propos():
     """
@@ -213,6 +234,10 @@ menuaide.add_command(label = a_accent_maj() + " propos de", command = a_propos)
 menubar.add_cascade(label = "Fichier", menu = menufichier)
 menubar.add_cascade(label = "Aide", menu = menuaide)
 
+
+
+
+
 fenetre.config(menu = menubar)
 canvasInfos = Canvas(fenetre, bg = colorVert, height = 450, width = 365)
 canvasInfos.place(x = 435, y = 0)
@@ -245,7 +270,7 @@ connexionButton=Button(canvasInfos, text = "Connexion", command = connexion)
 connexionButton.place(x = 185, y = 2)
 count1Var = StringVar()
 count2Var = StringVar()
-count1Label = Label(canvasInfos, textvariable = count1Var, font = Comic3, fg = 'white', bg = colorVert)
+count1Label = Label(canvasInfos, textvariable = count1Var, font = Comic3, fg = "white", bg = colorVert)
 count2Label = Label(canvasInfos, textvariable = count2Var, font = Comic3, bg = colorVert)
 count1Label.place(x = 115, y = 70)
 count2Label.place(x = 240, y = 70)
