@@ -7,7 +7,7 @@ from Game import init, getColor, place, getNumberColor
 import time
 
 colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, chatColor, colorPlayerChat, colorPion1, colorPion2 = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, "black", "blue", "white", "black"
-
+    
 def a_accent_maj():
     """
     Permet d'afficher un a accent majuscule
@@ -47,14 +47,16 @@ def initialisation():
     canvasGrille.delete("pion")
     refresh()
 
-def refreshBG():  # TODO
+def refreshBG(): # TODO
     """
     Permet de mettre a jour le fond de jeu
     """
-    canvasGrille.delete("fond")
     if backgroundPrefs.get() != "none":
-        photo = PhotoImage(file = backgroundPrefs.get())
-        canvasGrille.create_image(226, 226, image = photo, tags = "fond") # L'image ne s'affiche pas
+        for name, photo in backgrounds:
+            try:print(name + " -> " + photo.name)
+            except: print("None")
+            if name == backgroundPrefs.get():
+                canvasGrille.itemconfigure(background, image = photo)
 
 def refresh():
     """
@@ -124,7 +126,7 @@ def preferences():
     Label(canvasPlateauPrefs, bg = "gray", font = Comic2, text = "Plateau").place(x = 5, y = 5)
     colorsListP1 = [("Blanc", "white"), ("Orange", "orange")]
     colorsListP2 = [("Noir", "black"), ("Bleu", "blue")]
-    backgroundsList = [("Aucun", "none"), ("Bois", "backWood.gif"), ("Nounours", "pedobear.gif")] # TODO add backgrounds ("nomAAfficher", "nomDeLImage.xxx")
+    backgroundsList = [("Aucun", "none"), ("Bois", "wood"), ("Nounours", "bear")] # TODO add backgrounds ("nomAAfficher", "ID")
     tempValue = 0
     for tempText, tempColor in colorsListP1:
         Radiobutton(canvasPion1Prefs, text = tempText, bg = "gray", value = tempColor, variable = colorPion1Prefs).place(x = 10, y = 80 + 20 * tempValue)
@@ -215,13 +217,18 @@ fenetrePrincipale.title("Othello")
 fenetrePrincipale.geometry("800x450")
 fenetrePrincipale.resizable(0, 0)
 
+backgrounds = []
+backgrounds.append(("none", None))
+backgrounds.append(("wood", PhotoImage("backWood.gif")))
+backgrounds.append(("bear", PhotoImage("backBear.gif"))) #Liste des fonds, ("ID", "file.gif")
+
 colorPion1Prefs, colorPion2Prefs, backgroundPrefs = StringVar(), StringVar(), StringVar()
 colorPion1Prefs.set("white")
 colorPion2Prefs.set("black")
 backgroundPrefs.set("none")
 
 menubar = Menu(fenetrePrincipale)
-     
+
 menufichier = Menu(menubar, tearoff = 0)
 menufichier.add_command(label = "Nouvelle partie", command = initialisation)
 menufichier.add_command(label = "Pr" + e_aigu() + "f" + e_aigu() + "rences", command = preferences)
@@ -240,6 +247,7 @@ canvasInfos.place(x = 435, y = 0)
 canvasGrille = Canvas(fenetrePrincipale, bg = colorVert, height = 450, width = 435)
 canvasGrille.place(x = 0, y = 0)
 canvasGrille.bind("<Button-1>", mettre_pion)
+background = canvasGrille.create_image(226, 226)
 refreshBG()
 Label(canvasGrille, text = "A", font = Comic, bg = colorVert).place(x = 45, y = yOffsetCanvas)
 Label(canvasGrille, text = "B", font = Comic, bg = colorVert).place(x = 95, y = yOffsetCanvas)
@@ -285,5 +293,5 @@ textLabel = Text(canvasInfos, state = DISABLED, width = 41, height = 8, font = (
 textLabel.config(fg = "black")
 textLabel.place(x = 20, y = 185)
 Button(fenetrePrincipale, text = "Envoyer", command = parler).place(x = 710, y = 400)
-    
+
 fenetrePrincipale.mainloop()
