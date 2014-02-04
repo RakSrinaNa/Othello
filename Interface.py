@@ -52,8 +52,9 @@ def refreshBG():  # TODO
     Permet de mettre a jour le fond de jeu
     """
     canvasGrille.delete("fond")
-    photo = PhotoImage(file = backgroundPrefs.get())
-    canvasGrille.create_image(226, 226, image = photo, tags = "fond")  # L'image ne s'affiche pas
+    if backgroundPrefs.get() != "none":
+        photo = PhotoImage(file = backgroundPrefs.get())
+        canvasGrille.create_image(226, 226, image = photo, tags = "fond") # L'image ne s'affiche pas
 
 def refresh():
     """
@@ -123,7 +124,7 @@ def preferences():
     Label(canvasPlateauPrefs, bg = "gray", font = Comic2, text = "Plateau").place(x = 5, y = 5)
     colorsListP1 = [("Blanc", "white"), ("Orange", "orange")]
     colorsListP2 = [("Noir", "black"), ("Bleu", "blue")]
-    backgroundsList = [("Bois", "fond.gif"), ("Nounours", "pedobear.gif")]  # TODO add backgrounds ("nomAAfficher", "nomDeLImage.xxx")
+    backgroundsList = [("Aucun", "none"), ("Bois", "backWood.gif"), ("Nounours", "pedobear.gif")] # TODO add backgrounds ("nomAAfficher", "nomDeLImage.xxx")
     tempValue = 0
     for tempText, tempColor in colorsListP1:
         Radiobutton(canvasPion1Prefs, text = tempText, bg = "gray", value = tempColor, variable = colorPion1Prefs).place(x = 10, y = 80 + 20 * tempValue)
@@ -217,7 +218,7 @@ fenetrePrincipale.resizable(0, 0)
 colorPion1Prefs, colorPion2Prefs, backgroundPrefs = StringVar(), StringVar(), StringVar()
 colorPion1Prefs.set("white")
 colorPion2Prefs.set("black")
-backgroundPrefs.set("fond.gif")  # TODO set default background
+backgroundPrefs.set("none")
 
 menubar = Menu(fenetrePrincipale)
      
