@@ -4,7 +4,7 @@
 '''
 from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage, Radiobutton, Toplevel
 from Game import init, getColor, place, getNumberColor
-import time
+from time import localtime, strftime
 
 colorVert, blanc, noir, yOffsetCanvas, xOffsetCanvas, gridOffsetCanvas, tailleCase , Comic, Comic2, Comic3, tourDeJeu, chatColor, colorPlayerChat, colorPion1, colorPion2 = "#086126", 1, 2, 2, 8, 25, 50, ("Comic sans MS", "9"), ("Comic sans MS", "25"), ("Comic sans MS", "35"), 1, "black", "blue", "white", "black"
     
@@ -187,7 +187,7 @@ def textTraitment(text, user, name, color):
         color -> La couleur du texte
     """
     if(str(text) == "" or len(text) == text.count(" ")): return
-    textTime = time.strftime('%H:%M:%S : ', time.localtime())
+    textTime = strftime('%H:%M:%S : ', localtime())
     text = textTime + str(name) + " -> " + str(text)
     textChat.config(state = NORMAL)
     textChat.insert(0.0, text + "\n")
