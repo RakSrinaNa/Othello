@@ -50,7 +50,7 @@ def getColor(x , y):
     if(x < 0 or x > 7 or y < 0 or y > 7): return 3 #Hors de la grille
     return grille[y][x]
 
-def detectPawn(color, x, y): #TODO: With functions
+def detectPawn(color, x, y):
     """
     Permet de connaitre les pions de meme couleur qui sont sur les memes lignes
         Arguments:
