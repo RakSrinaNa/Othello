@@ -61,69 +61,29 @@ def detectPawn(color, x, y): #TODO: With functions
         Une liste de tableaux bi-dimensionnels contenant les positions des pions trouves
     """
     pawnList = []
-    pawnList.append(getNextPawnLine(color, 1, 0, x, y)) #Horizontal -
-    pawnList.append(getNextPawnLine(color, -1, 0, x, y)) #Horizontal +
-    pawnList.append(getNextPawnLine(color, 0, 1, x, y)) #Vertical +
-    pawnList.append(getNextPawnLine(color, 0, -1, x, y)) #Vertical -
-    pawnList.append(getNextPawnDiagonal(color, 1, 1, x, y)) #Diagonale + +
-    pawnList.append(getNextPawnDiagonal(color, 1, -1, x, y)) #Diagonale + -
-    pawnList.append(getNextPawnDiagonal(color, -1, 1, x, y)) #Diagonale - +
-    pawnList.append(getNextPawnDiagonal(color, -1, -1, x, y)) #Diagonale - -
+    pawnList.append(getNextPawn(color, 1, 0, x, y)) #Horizontal +
+    pawnList.append(getNextPawn(color, -1, 0, x, y)) #Horizontal -
+    pawnList.append(getNextPawn(color, 0, 1, x, y)) #Vertical +
+    pawnList.append(getNextPawn(color, 0, -1, x, y)) #Vertical -
+    pawnList.append(getNextPawn(color, 1, 1, x, y)) #Diagonale + +
+    pawnList.append(getNextPawn(color, 1, -1, x, y)) #Diagonale + -
+    pawnList.append(getNextPawn(color, -1, 1, x, y)) #Diagonale - +
+    pawnList.append(getNextPawn(color, -1, -1, x, y)) #Diagonale - -
     print(pawnList)
     return pawnList
 
-def getNextPawnLine(color, directionX, directionY, x, y):
-    direction = 0
-    isEating = False
-    if(directionX != 0 and directionY != 0): return
-    elif(abs(directionY) == 1): direction = 1
+def getNextPawn(color, directionX, directionY, x, y):
+    opponentPawnMet = False
+    if(directionX == 0 and directionY == 0): return #Aucun decalage efectue, on arrete
     for temporaryPos in range(1, 8):
-        if(direction == 1): #Vertical
-            tempY = int(y + copysign(temporaryPos, directionY))
-            if(getColor(x, tempY) == 3): return #Hors de la grille
-            elif(getColor(x, tempY) == color and tempY != y and isEating): #Verifie dans la ligne horizontale
-                return (x, tempY)
-            elif(getColor(x, tempY) == color and tempY != y and not isEating): return
-            elif(getColor(x, tempY) == 0 and tempY != y): return
-            elif(getColor(x, tempY) != color and getColor(x, tempY) != 0 and getColor(x, tempY) != 3): isEating = True
-        else: #Horizontal
-            tempX = int(x + copysign(temporaryPos, directionX))
-            if(getColor(tempX, y) == 3): return #Hors de la grille
-            elif(getColor(tempX, y) == color and tempX != x and isEating): #Verifie dans la ligne horizontale
-                return (tempX, y)
-            elif(getColor(tempX, y) == color and tempX != x and not isEating): return
-            elif(getColor(tempX, y) == 0 and tempX != x): return
-            elif(getColor(tempX, y) != color and getColor(tempX, x) != 0 and getColor(tempX, y) != 3): isEating = True
-
-def getNextPawnDiagonal(color, directionX, directionY, x, y):
-    """
-    Permet d'avoir la position du pion le plus proche de l'autre couleur dans une diagonale
-    Arguments:
-        color -> La couleur du pion joue
-        directionX -> Le sens de deplacement selon x (-1 ou 1)
-        directionY -> Le sens de deplacement selon y (-1 ou 1)
-        x -> La position x du pion (horizontale)
-        y -> La position y du pion (verticale)
-    Return:
-        Un tableau bi-dimensionnel contenant la position du pion trouve
-    """
-    if(abs(directionX) != 1 or abs(directionY) != 1): return #Return si une des deux directions differente de 1 ou -1
-    
-    #On se decale d'un dans la diagonale voulue
-    x += directionX
-    y += directionY
-    
-    isEating = False
-    while(getColor(x, y) != 3): #Tant qu'on est pas hors de la grille
-        if(getColor(x, y) == 0): return #Si c'est de l'air on s'arrete, la ligne n'est pas faisable
-        if(getColor(x, y) != color): isEating = True #C'est un pion de l'adversaire, on peut le retourner
-        if(getColor(x, y) == color and isEating): return (x, y) #C'est un de nos pions et un pion adversaire a ete retourne, on le valide
-        elif(getColor(x, y) == color and not isEating): return #C'est un de nos pions mais aucun pion adversaire n'a ete retourne, on arrete
-        
-        #On se decale d'un dans la diagonale voulue
-        x += directionX
-        y += directionY
-    return
+        tempX = int(x + copysign(abs(directionX) * temporaryPos, directionX))
+        tempY = int(y + copysign(abs(directionY) * temporaryPos, directionY))
+        if(getColor(tempX, tempY) == 3): return #Hors de la grille
+        elif(getColor(tempX, tempY) == color and (tempX != x or tempY != y) and opponentPawnMet): #On est apsse par des pions adverse et rencontrons un de nos pions, ligne finie
+            return (tempX, tempY)
+        elif(getColor(tempX, tempY) == color and (tempX != x or tempY != y) and not opponentPawnMet): return #C'est un de nos pions mais on a pas rencontre de pions adverse, pas de ligne
+        elif(getColor(tempX, tempY) == 0 and (tempX != x or tempY != y)): return #On est tombe sur une case vide, pas de ligne
+        elif(getColor(tempX, tempY) != color and getColor(tempX, tempY) != 0 and getColor(tempX, tempY) != 3): opponentPawnMet = True #Ce n'est pas notre pion, on continue la ligne
 
 def reverse(color, coordinateBase, coordinateTo):
     """
