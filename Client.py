@@ -3,8 +3,8 @@
 '''
 
 import socket
-import threading
 import time
+import threading
 
 class ThreadClient(threading.Thread):
     def __init__(self, tHote, tPort):
@@ -13,24 +13,24 @@ class ThreadClient(threading.Thread):
         self.port = tPort
         self.nom = "TClient"
         self.aEnvoyer = ""
-        self.st = time.time()
         self.Terminated = False
-        self.traite = True
         self.start()
         
     def run(self):
+        self.timer = time.time()
         connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connexionServeur.connect((self.hote, self.port))
         print("\nConnexion etablie avec le serveur sur le port " + str(self.port))
         message = ""
         while not self.Terminated:
-            if time.time() > self.st + 0.1 :
-                self.setAEnvoyer("")
-                self.st = time.time()
-            if not self.traite:
-                self.traite = True
+            if message != self.aEnvoyer:
                 message = self.aEnvoyer
                 connexionServeur.send(message.encode())
+                messageRecu = connexionServeur.recv(1024).decode()
+                print("Reponse serveur: " + str(messageRecu))
+            if time.time() - self.timer > 0.5:
+                self.time = time.time()
+                connexionServeur.send("9".encode())
                 messageRecu = connexionServeur.recv(1024).decode()
                 print("Reponse serveur: " + str(messageRecu))
         print("Fermeture de la connexion")
@@ -40,7 +40,6 @@ class ThreadClient(threading.Thread):
         self.Terminated = True
         
     def setAEnvoyer(self, message):
-        self.traite = False
         self.aEnvoyer = message
 
 def envoi(messageType, *args):
