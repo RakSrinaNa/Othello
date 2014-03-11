@@ -1,12 +1,12 @@
 '''
 @author: Johann Jacques
 '''
-
+from TransmissionDecrypter import decrypt
 import socket
 import select
 import threading
 
-class ThreadServer(threading.Thread):
+class ThreadServer(threading.Thread):    
     def __init__(self , tHote = socket.gethostbyname(socket.gethostname()), tPort = 50000):
         threading.Thread.__init__(self)
         self.hote = tHote
@@ -36,8 +36,7 @@ class ThreadServer(threading.Thread):
                 messageRecu = client.recv(1024)
                 messageRecu = messageRecu.decode()
                 print("> " + messageRecu)
-                messageRecu = messageRecu.encode()
-                client.send(messageRecu)  
+                client.send(decrypt(messageRecu).encode())
         print("Fermeture des connexions")
         for client in clientsConnectes:
             client.close()
@@ -46,14 +45,13 @@ class ThreadServer(threading.Thread):
     def stop(self):
         self.Terminated = True
 
-def lancement():
+def lancement_serv():
     global serverThread
     serverThread = ThreadServer()
 
-def arret():
+def arret_serv():
     global serverThread
     serverThread.stop()
     
 global serverThread
 serverThread = None
-lancement()
