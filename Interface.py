@@ -2,10 +2,7 @@
 '''
 @author: Olivier Froger
 '''
-class Interface(object):
-    self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2
-    self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat = "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue"
-        
+class Interface:    
     def a_accent_maj(self):
         """
         Permet d'afficher un a accent majuscule
@@ -48,24 +45,24 @@ class Interface(object):
         """
         Permet de mettre a jour le fond de jeu
         """
-        if backgroundPrefs.get() == "none":
-            canvasGrille.itemconfigure(background, image = None)
-        elif backgroundPrefs.get() == "bear":
-            canvasGrille.itemconfigure(background, image = photoBackgroundBear)
-        elif backgroundPrefs.get() == "wood":
-            canvasGrille.itemconfigure(background, image = photoBackgroundWood)
-        elif backgroundPrefs.get() == "digital":
-            canvasGrille.itemconfigure(background, image = photoBackgroundDigital)
-        elif backgroundPrefs.get() == "abstract":
-            canvasGrille.itemconfigure(background, image = photoBackgroundAbstract)
-        elif backgroundPrefs.get() == "wall":
-            canvasGrille.itemconfigure(background, image = photoBackgroundWall)
-        elif backgroundPrefs.get() == "penguins":
-            canvasGrille.itemconfigure(background, image = photoBackgroundPenguins)
-        elif backgroundPrefs.get() == "koala":
-            canvasGrille.itemconfigure(background, image = photoBackgroundKoala)
-        elif backgroundPrefs.get() == "desert":
-            canvasGrille.itemconfigure(background, image = photoBackgroundDesert)
+        if self.backgroundPrefs.get() == "none":
+            self.canvasGrille.itemconfigure(self.background, image = None)
+        elif self.backgroundPrefs.get() == "bear":
+            self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundBear)
+        elif self.backgroundPrefs.get() == "wood":
+            self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundWood)
+        elif self.backgroundPrefs.get() == "digital":
+            self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundDigital)
+        elif self.backgroundPrefs.get() == "abstract":
+            self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundAbstract)
+        elif self.backgroundPrefs.get() == "wall":
+            self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundWall)
+        elif self.backgroundPrefs.get() == "penguins":
+            self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundPenguins)
+        elif self.backgroundPrefs.get() == "koala":
+            self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundKoala)
+        elif self.backgroundPrefs.get() == "desert":
+            self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundDesert)
         
 
     def refresh(self):
@@ -75,8 +72,8 @@ class Interface(object):
         for x in range(0, 8):
             for y in range(0, 8):
                 placer_pion(getColor(x, y), x, y)
-        count1Var.set(getNumberColor(self.blanc))
-        count2Var.set(getNumberColor(self.noir))
+        self.count1Var.set(getNumberColor(self.blanc))
+        self.count2Var.set(getNumberColor(self.noir))
 
     def placer_pion(self, color, x, y):
         """
@@ -87,11 +84,11 @@ class Interface(object):
             x -> La position x (Horizontale)
             y -> La position y (verticale)
         """
-        self.offsetGrid, self.borderLineColor, self.backgroundColor = 5, "black", self.colorVert
+        offsetGrid, borderLineColor, backgroundColor = 5, "black", self.colorVert
         if color == self.blanc:backgroundColor = self.colorPion1Prefs.get()
         elif color == self.noir:backgroundColor = self.colorPion2Prefs.get()
         else: return
-        canvasGrille.create_oval(self.gridOffsetCanvas + (x * self.tailleCase) + self.offsetGrid, self.gridOffsetCanvas + (y * self.tailleCase) + self.offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (x + 1)) - self.offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (y + 1)) - self.offsetGrid, tags = "pion", fill = self.backgroundColor, outline = self.borderLineColor)
+        self.canvasGrille.create_oval(self.gridOffsetCanvas + (x * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (y * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (x + 1)) - offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (y + 1)) - offsetGrid, tags = "pion", fill = backgroundColor, outline = borderLineColor)
 
     def mettre_pion(self, event):
         """
@@ -100,7 +97,6 @@ class Interface(object):
         Arguments:
             event -> L'event du clic
         """
-        self.tourDeJeu, self.caseX, self.caseY, self.couleur
         if(place(1 + (self.tourDeJeu % 2), ((event.x) - self.gridOffsetCanvas) // self.tailleCase, ((event.y) - self.gridOffsetCanvas) // self.tailleCase) == 0):
             self.caseX = (((event.x) - self.gridOffsetCanvas) // self.tailleCase) 
             self.caseY = (((event.y) - self.gridOffsetCanvas) // self.tailleCase)
@@ -114,7 +110,7 @@ class Interface(object):
         Permet d'afficher la fenetrePrincipale des regles
         """
         self.fenetreRegles = Tk()
-        self.fenetreRegles.title("R" + e_grave() + "gles du jeu")
+        self.fenetreRegles.title("R" + self.e_grave() + "gles du jeu")
         self.fenetreRegles.geometry("500x500")
         self.fenetreRegles.resizable(0, 0)
         self.fenetreRegles.mainloop()
@@ -126,7 +122,7 @@ class Interface(object):
         #global self.fenetrePreferences, self.colorsListP1, self.colorsListP2
         self.fenetrePreferences = Toplevel()
         self.fenetrePreferences.grab_set()
-        self.fenetrePreferences.title("Pr" + e_aigu() + "f" + e_aigu() + "rences")
+        self.fenetrePreferences.title("Pr" + self.e_aigu() + "f" + self.e_aigu() + "rences")
         self.fenetrePreferences.geometry("500x500")
         self.fenetrePreferences.resizable(0, 0)
         self.canvasPion1Prefs = Canvas(self.fenetrePreferences, bg = "gray", height = 250, width = 250)
@@ -141,18 +137,18 @@ class Interface(object):
         self.colorsListP1 = [("self.blanc", "white"), ("self.noir", "black"), ("Orange", "orange"), ("Bleu", "blue"), ("Vert", "green"), ("Rouge", "red"), ("Jaune", "Yellow")]
         self.colorsListP2 = [("self.blanc", "white"), ("self.noir", "black"), ("Orange", "orange"), ("Bleu", "blue"), ("Vert", "green"), ("Rouge", "red"), ("Jaune", "Yellow")]
         self.backgroundsList = [("Aucun", "none"), ("Bois", "wood"), ("Nounours", "bear"), ("Digital", "digital"), ("Abstrait", "abstract"), ("Mur", "wall"), ("Penguins", "penguins"), ("Koala", "koala"), ("Desert", "desert")] # TODO add backgrounds ("nomAAfficher", "ID")
-        self.tempValue = 0
-        for self.tempText, self.tempColor in self.colorsListP1:
-            Radiobutton(self.canvasPion1Prefs, text = self.tempText, bg = "gray", value = self.tempColor, variable = self.colorPion1Prefs).place(x = 10, y = 60 + 20 * self.tempValue)
-            self.tempValue += 1
-        self.tempValue = 0
-        for self.tempText, self.tempColor in self.colorsListP2:
-            Radiobutton(self.canvasPion2Prefs, text = self.tempText, bg = "gray", value = self.tempColor, variable = self.colorPion2Prefs).place(x = 10, y = 60 + 20 * self.tempValue)
-            self.tempValue += 1
-        self.tempValue = 0
-        for self.tempText, self.tempColor in self.backgroundsList:
-            Radiobutton(self.canvasPlateauPrefs, text = self.tempText, bg = "gray", value = self.tempColor, variable = self.backgroundPrefs).place(x = 10, y = 60 + 20 * self.tempValue)
-            self.tempValue += 1
+        tempValue = 0
+        for tempText, tempColor in self.colorsListP1:
+            Radiobutton(self.canvasPion1Prefs, text = tempText, bg = "gray", value = tempColor, variable = self.colorPion1Prefs).place(x = 10, y = 60 + 20 * self.tempValue)
+            tempValue += 1
+        tempValue = 0
+        for tempText, tempColor in self.colorsListP2:
+            Radiobutton(self.canvasPion2Prefs, text = tempText, bg = "gray", value = tempColor, variable = self.colorPion2Prefs).place(x = 10, y = 60 + 20 * self.tempValue)
+            tempValue += 1
+        tempValue = 0
+        for tempText, tempColor in self.backgroundsList:
+            Radiobutton(self.canvasPlateauPrefs, text = tempText, bg = "gray", value = tempColor, variable = self.backgroundPrefs).place(x = 10, y = 60 + 20 * self.tempValue)
+            tempValue += 1
         Button(self.canvasPlateauPrefs, text = "Valider", command = self.appli_preferences).place(x = 230, y = 200)
         self.fenetrePreferences.mainloop()
 
@@ -217,7 +213,7 @@ class Interface(object):
         """
         Permet d'initialiser la connexion
         """
-        Label(canvasInfos, text = str(self.pseudoEntry.get()), bg = self.colorVert, fg = 'red').place(x = 50, y = 2)
+        Label(self.canvasInfos, text = str(self.pseudoEntry.get()), bg = self.colorVert, fg = 'red').place(x = 50, y = 2)
         pseudo = self.pseudoEntry.get()
         if pseudo == "" or self.pseudoEntry.get().find('&') > -1 or self.pseudoEntry.get().find('£') > -1:
             return
@@ -241,15 +237,19 @@ class Interface(object):
         import tkinter.messagebox
         from Game import init, getColor, place, getNumberColor
         from time import localtime, strftime
+
+        #Initialisation des variables
+        self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2 = "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None
+    
         #from Server import lancement_serv, arret_serv
         self.fenetreConnexion = Tk()
         self.fenetreConnexion.title("Connexion . . .")
         self.fenetreConnexion.geometry("350x100")
-        Label(fenetreConnexion, text = "Hote : ").place(x = 1, y = 1)
-        Label(fenetreConnexion, text = "Port : ").place(x = 1, y = 51)
-        Entry(fenetreConnexion).place(x = 50, y = 1)
-        Entry(fenetreConnexion).place(x = 50, y = 51)
-        Button(fenetreConnexion, text = "Connexion", command = self.fenetreConnexion.destroy).place(x = 185, y = 30)
+        Label(self.fenetreConnexion, text = "Hote : ").place(x = 1, y = 1)
+        Label(self.fenetreConnexion, text = "Port : ").place(x = 1, y = 51)
+        Entry(self.fenetreConnexion).place(x = 50, y = 1)
+        Entry(self.fenetreConnexion).place(x = 50, y = 51)
+        Button(self.fenetreConnexion, text = "Connexion", command = self.fenetreConnexion.destroy).place(x = 185, y = 30)
         self.fenetreConnexion.mainloop()
         #Initialisation de la fenetre
         self.fenetrePrincipale = Tk()
@@ -257,7 +257,7 @@ class Interface(object):
         self.fenetrePrincipale.geometry("800x450")
         self.fenetrePrincipale.resizable(0, 0)
         self.fenetrePrincipale.protocol("WM_DELETE_WINDOW", self.stopInterface)
-        Label(fenetrePrincipale, text = "Othello", font = self.Comic2, bg = self.colorVert).place(x = 570, y = 35)
+        Label(self.fenetrePrincipale, text = "Othello", font = self.Comic2, bg = self.colorVert).place(x = 570, y = 35)
         
         
         #Declaration des images de fond de jeu
@@ -278,81 +278,81 @@ class Interface(object):
         
         
         #Creation de la barre de menus
-        self.menubar = Menu(fenetrePrincipale)
+        self.menubar = Menu(self.fenetrePrincipale)
         
-        self.menufichier = Menu(menubar, tearoff = 0)
-        self.menufichier.add_command(label = "Nouvelle partie", command = initialisation)
-        self.menufichier.add_command(label = "Pr" + e_aigu() + "f" + e_aigu() + "rences", command = preferences)
-        self.menufichier.add_command(label = "Quitter", command = fenetrePrincipale.destroy)
+        self.menufichier = Menu(self.menubar, tearoff = 0)
+        self.menufichier.add_command(label = "Nouvelle partie", command = self.initialisation)
+        self.menufichier.add_command(label = "Pr" + self.e_aigu() + "f" + self.e_aigu() + "rences", command = self.preferences)
+        self.menufichier.add_command(label = "Quitter", command = self.fenetrePrincipale.destroy)
         
-        self.menuaide = Menu(menubar, tearoff = 0)
-        self.menuaide.add_command(label = "R" + e_grave() + "gles du jeu", command = regles)
-        self.menuaide.add_command(label = a_accent_maj() + " propos de", command = a_propos)
+        self.menuaide = Menu(self.menubar, tearoff = 0)
+        self.menuaide.add_command(label = "R" + self.e_grave() + "gles du jeu", command = self.regles)
+        self.menuaide.add_command(label = self.a_accent_maj() + " propos de", command = self.a_propos)
         
-        self.menubar.add_cascade(label = "Fichier", menu = menufichier)
-        self.menubar.add_cascade(label = "Aide", menu = menuaide)
+        self.menubar.add_cascade(label = "Fichier", menu = self.menufichier)
+        self.menubar.add_cascade(label = "Aide", menu = self.menuaide)
         
-        self.fenetrePrincipale.config(menu = menubar)
+        self.fenetrePrincipale.config(menu = self.menubar)
         
         
         #Creation du canvas contenant la grille de jeu
-        canvasGrille = Canvas(fenetrePrincipale, bg = self.colorVert, height = 450, width = 435)
-        canvasGrille.place(x = 0, y = 0)
-        canvasGrille.bind("<Button-1>", mettre_pion)
-        Label(canvasGrille, text = "A", font = self.Comic, bg = self.colorVert).place(x = 45, y = self.yOffsetCanvas)
-        Label(canvasGrille, text = "B", font = self.Comic, bg = self.colorVert).place(x = 95, y = self.yOffsetCanvas)
-        Label(canvasGrille, text = "C", font = self.Comic, bg = self.colorVert).place(x = 145, y = self.yOffsetCanvas)
-        Label(canvasGrille, text = "D", font = self.Comic, bg = self.colorVert).place(x = 195, y = self.yOffsetCanvas)
-        Label(canvasGrille, text = "E", font = self.Comic, bg = self.colorVert).place(x = 245, y = self.yOffsetCanvas)
-        Label(canvasGrille, text = "F", font = self.Comic, bg = self.colorVert).place(x = 295, y = self.yOffsetCanvas)
-        Label(canvasGrille, text = "G", font = self.Comic, bg = self.colorVert).place(x = 345, y = self.yOffsetCanvas)
-        Label(canvasGrille, text = "H", font = self.Comic, bg = self.colorVert).place(x = 395, y = self.yOffsetCanvas)
-        Label(canvasGrille, text = "1", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 40)
-        Label(canvasGrille, text = "2", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 90)
-        Label(canvasGrille, text = "3", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 140)
-        Label(canvasGrille, text = "4", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 190)
-        Label(canvasGrille, text = "5", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 240)
-        Label(canvasGrille, text = "6", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 290)
-        Label(canvasGrille, text = "7", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 340)
-        Label(canvasGrille, text = "8", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 390)
+        self.canvasGrille = Canvas(self.fenetrePrincipale, bg = self.colorVert, height = 450, width = 435)
+        self.canvasGrille.place(x = 0, y = 0)
+        self.canvasGrille.bind("<Button-1>", self.mettre_pion)
+        Label(self.canvasGrille, text = "A", font = self.Comic, bg = self.colorVert).place(x = 45, y = self.yOffsetCanvas)
+        Label(self.canvasGrille, text = "B", font = self.Comic, bg = self.colorVert).place(x = 95, y = self.yOffsetCanvas)
+        Label(self.canvasGrille, text = "C", font = self.Comic, bg = self.colorVert).place(x = 145, y = self.yOffsetCanvas)
+        Label(self.canvasGrille, text = "D", font = self.Comic, bg = self.colorVert).place(x = 195, y = self.yOffsetCanvas)
+        Label(self.canvasGrille, text = "E", font = self.Comic, bg = self.colorVert).place(x = 245, y = self.yOffsetCanvas)
+        Label(self.canvasGrille, text = "F", font = self.Comic, bg = self.colorVert).place(x = 295, y = self.yOffsetCanvas)
+        Label(self.canvasGrille, text = "G", font = self.Comic, bg = self.colorVert).place(x = 345, y = self.yOffsetCanvas)
+        Label(self.canvasGrille, text = "H", font = self.Comic, bg = self.colorVert).place(x = 395, y = self.yOffsetCanvas)
+        Label(self.canvasGrille, text = "1", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 40)
+        Label(self.canvasGrille, text = "2", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 90)
+        Label(self.canvasGrille, text = "3", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 140)
+        Label(self.canvasGrille, text = "4", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 190)
+        Label(self.canvasGrille, text = "5", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 240)
+        Label(self.canvasGrille, text = "6", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 290)
+        Label(self.canvasGrille, text = "7", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 340)
+        Label(self.canvasGrille, text = "8", font = self.Comic, bg = self.colorVert).place(x = self.xOffsetCanvas, y = 390)
         
-        background = canvasGrille.create_image(226, 226)
-        refreshBG()
+        self.background = self.canvasGrille.create_image(226, 226)
+        self.refreshBG()
         
         x1, x2, y1, y2 = self.gridOffsetCanvas, self.gridOffsetCanvas, self.gridOffsetCanvas, self.gridOffsetCanvas
         for i in range(0, 9):
-            canvasGrille.create_line(x1, y1, x1 + 400, y1)
-            canvasGrille.create_line(x2, y2, x2, y2 + 400)
+            self.canvasGrille.create_line(x1, y1, x1 + 400, y1)
+            self.canvasGrille.create_line(x2, y2, x2, y2 + 400)
             y1 += self.tailleCase
             x2 += self.tailleCase
         
         
         #Creation du canvas contenant les infos de jeu et le chat
-        canvasInfos = Canvas(fenetrePrincipale, bg = self.colorVert, height = 450, width = 365)
-        canvasInfos.place(x = 435, y = 0)
-        Label(canvasInfos, text = "Pseudo:", font = self.Comic, bg = self.colorVert).place(x = 5, y = 2)
-        self.pseudoEntry = Entry(canvasInfos)
+        self.canvasInfos = Canvas(self.fenetrePrincipale, bg = self.colorVert, height = 450, width = 365)
+        self.canvasInfos.place(x = 435, y = 0)
+        Label(self.canvasInfos, text = "Pseudo:", font = self.Comic, bg = self.colorVert).place(x = 5, y = 2)
+        self.pseudoEntry = Entry(self.canvasInfos)
         self.pseudoEntry.place(x = 50, y = 2)
-        connexionButton = Button(canvasInfos, text = "Connexion", command = connexion)
-        connexionButton.place(x = 185, y = 2)
-        count1Var, count2Var = StringVar(), StringVar()
-        count1Label = Label(canvasInfos, textvariable = count1Var, font = self.Comic3, fg = self.colorPion1Prefs.get(), bg = self.colorVert)
-        count2Label = Label(canvasInfos, textvariable = count2Var, font = self.Comic3, fg = self.colorPion2Prefs.get(), bg = self.colorVert)
-        count1Label.place(x = 240, y = 70)
-        count2Label.place(x = 115, y = 70)
-        Button(canvasInfos, text = "Nouvelle partie", command = initialisation).place(x = 270, y = 1)
-        chatEntry = Entry(canvasInfos, width = 35)
-        chatEntry.bind("<Return>", parler)
-        chatEntry.place(x = 40, y = 400)
-        textChat = Text(canvasInfos, state = DISABLED, width = 41, height = 8, font = ("self.Comic sans ms", 10))
-        textChat.config(fg = "black")
-        textChat.place(x = 20, y = 185)
-        Button(canvasInfos, text = "Envoyer", command = parler).place(x = 260, y = 395)
-        canvasInfos.create_line(100, 150, 180, 150)
-        canvasInfos.create_line(100, 65, 100, 150)
-        canvasInfos.create_line(100, 65, 180, 65)
-        canvasInfos.create_line(180, 65, 180, 150)
+        self.connexionButton = Button(self.canvasInfos, text = "Connexion", command = self.connexion)
+        self.connexionButton.place(x = 185, y = 2)
+        self.count1Var, self.count2Var = StringVar(), StringVar()
+        self.count1Label = Label(self.canvasInfos, textvariable = self.count1Var, font = self.Comic3, fg = self.colorPion1Prefs.get(), bg = self.colorVert)
+        self.count2Label = Label(self.canvasInfos, textvariable = self.count2Var, font = self.Comic3, fg = self.colorPion2Prefs.get(), bg = self.colorVert)
+        self.count1Label.place(x = 240, y = 70)
+        self.count2Label.place(x = 115, y = 70)
+        Button(self.canvasInfos, text = "Nouvelle partie", command = self.initialisation).place(x = 270, y = 1)
+        self.chatEntry = Entry(self.canvasInfos, width = 35)
+        self.chatEntry.bind("<Return>", self.parler)
+        self.chatEntry.place(x = 40, y = 400)
+        self.textChat = Text(self.canvasInfos, state = DISABLED, width = 41, height = 8, font = ("self.Comic sans ms", 10))
+        self.textChat.config(fg = "black")
+        self.textChat.place(x = 20, y = 185)
+        Button(self.canvasInfos, text = "Envoyer", command = self.parler).place(x = 260, y = 395)
+        self.canvasInfos.create_line(100, 150, 180, 150)
+        self.canvasInfos.create_line(100, 65, 100, 150)
+        self.canvasInfos.create_line(100, 65, 180, 65)
+        self.canvasInfos.create_line(180, 65, 180, 150)
         
         #lancement_serv()
         
-        fenetrePrincipale.mainloop()
+        self.fenetrePrincipale.mainloop()
