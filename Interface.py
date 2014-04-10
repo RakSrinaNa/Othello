@@ -5,10 +5,69 @@
 
 #from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage, Radiobutton, Toplevel
 import tkinter.messagebox
+import time
 import sys
 from tkinter import*
 from Game import init, getColor, place, getNumberColor
-from time import localtime, strftime   
+from time import localtime, strftime
+import socket
+import select
+import threading
+
+global serverThread, clientThread, fen
+server = False
+serverThread = None
+
+class ThreadClient(threading.Thread):
+    def __init__(self, tHote, tPort):
+        threading.Thread.__init__(self)
+        self.hote = tHote
+        self.port = tPort
+        self.nom = "TClient"
+        self.aEnvoyer = ""
+        self.Terminated = False
+        self.start()
+        
+    def run(self):
+        self.timer = time.time()
+        connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connexionServeur.connect((self.hote, self.port))
+        print("\nConnexion etablie avec le serveur sur le port " + str(self.port))
+        message = ""
+        while not self.Terminated:
+            if message != self.aEnvoyer:
+                message = self.aEnvoyer
+                connexionServeur.send(message.encode())
+                messageRecu = connexionServeur.recv(1024).decode()
+                print("Reponse serveur: " + str(messageRecu))
+            if time.time() - self.timer > 5:
+                self.time = time.time()
+                connexionServeur.send("9".encode())
+                messageRecu = connexionServeur.recv(1024).decode()
+                print("Reponse serveur: " + str(messageRecu))
+                fen.decrypt(messageRecu)
+        print("Fermeture de la connexion")
+        connexionServeur.close()
+        
+    def stop(self):
+        self.Terminated = True
+        
+    def setAEnvoyer(self, message):
+        self.aEnvoyer = message
+
+def envoi(messageType, *args):
+    global clientThread
+    message = str(messageType)
+    for arg in args: message += str(arg)
+    clientThread.setAEnvoyer(message)
+
+def arret_client():
+    global clientThread
+    clientThread.stop()
+    
+def lancement_client(hote = "192.168.227.26", port = 50000):
+    global clientThread
+    clientThread = ThreadClient(hote, port)
     
 class Interface:
     def a_accent_maj(self):
@@ -254,16 +313,47 @@ class Interface:
 
     def getLastPos(self):
         print(self.couleur,self.caseX,self.caseY)
-        return self.caseX, self.caseY, self.couleur
+        return [self.caseX, self.caseY, self.couleur]
 
     def getLastChat(self):
-        if self.chatEntry.get() == "" or self.chatEntry.get() == " " and str(self.joueur) != "Syst" + self.e_grave + "me": return
-        else: self.message.insert(0, self.joueur)
-        r = self.message
-        for q in self.message:
-            print(q)
-            self.message = []
-        return r
+        return ["Message1", "Message2", "Message3", "Neko"]
+
+    def decrypt(self, x):
+        try:
+            if x[0] == '0': #0_col_x_y
+                self.placer_pion(int(x[2]), int(x[4]), int(x[6]))
+                return "OK " + str(int(x[1]))+ str(int(x[2])) + str(int(x[3]))
+            elif x[0] == '1': #1_user&mess
+                self.textTraitment(x[x.find('&') + 1:x.find(',')], "opponent", x[x.find(','):], 'red')
+                return "OK " + str(x[x.find('&') + 1:x.find(',')]) + "opponent"  + str(x[x.find(','):]) + 'red'
+            elif x[0] == '8':
+                x = x[1:]
+                while x.find('£') > -1:
+                    x = x[1:]
+                    y = x
+                    if(x.find('£') > -1):
+                        print(self.decrypt(y[:y.find('£')]))
+                        x = x[x.find('£'):]
+                    else:
+                        print(fen.decrypt(x))
+                return "OK 8"
+            elif x[0] == '9':
+                mess = '8'
+                s = self.getLastPos()
+                b = True
+                for a in s:
+                    b = b and (str(a) != "None")
+                if b: 
+                    mess += "£0," + str(s[0]) + "&" + str(s[1]) + "&" + str(s[2])
+                m = self.getLastChat()
+                user = m.pop()
+                for message in m:
+                    mess += "£1&" + user + "," + message
+                return mess
+        except IndexError as e:
+            print(e)
+            pass
+        return "Error " + x
         
     def __init__(self):
         #Initialisation des variables
@@ -384,10 +474,56 @@ class Interface:
         self.canvasInfos.create_line(100, 65, 100, 150)
         self.canvasInfos.create_line(100, 65, 180, 65)
         self.canvasInfos.create_line(180, 65, 180, 150)
-        
-        #lancement_serv()
-        
-        self.fenetrePrincipale.mainloop()
 
 fen = Interface()
 
+class ThreadServer(threading.Thread):    
+    def __init__(self , tHote = socket.gethostbyname(socket.gethostname()), tPort = 50000):
+        threading.Thread.__init__(self)
+        self.hote = tHote
+        self.port = tPort
+        self.nom = "TServer"
+        self.Terminated = False
+        self.start()
+        
+    def run(self):
+        connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connexionPrincipale.bind((self.hote, self.port))
+        connexionPrincipale.listen(5)
+        server = "Bienvenue sur le serveur OTHELLO ({}:{})".format(self.hote, self.port)
+        print("\n" + server.upper().center(85) + "\nTraitement des donnees :\n")
+        clientsConnectes = []
+        while not self.Terminated:
+            connexionsEntrantes, wlist, xlist = select.select([connexionPrincipale], [], [], 0.05)
+            for connexion in connexionsEntrantes:
+                connexionClient, infosConnexion = connexion.accept()
+                clientsConnectes.append(connexionClient)
+            clientsALire = []
+            try:
+                clientsALire, wlist, xlist = select.select(clientsConnectes, [], [], 0.05)
+            except select.error:
+                pass
+            for client in clientsALire:
+                messageRecu = client.recv(1024)
+                messageRecu = messageRecu.decode()
+                print("> " + messageRecu)
+                client.send(fen.decrypt(messageRecu).encode())
+        print("Fermeture des connexions")
+        for client in clientsConnectes:
+            client.close()
+        connexionPrincipale.close()
+        
+    def stop(self):
+        self.Terminated = True
+
+def lancement_serv():
+    global serverThread
+    serverThread = ThreadServer()
+
+def arret_serv():
+    global serverThread
+    if(serverThread != None):serverThread.stop()
+
+if(server):lancement_serv()
+else:lancement_client()
+fen.fenetrePrincipale.mainloop()
