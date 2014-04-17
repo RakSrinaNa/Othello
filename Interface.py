@@ -281,10 +281,7 @@ class Interface:
             self.textChat.tag_configure("name", foreground = colorUser)
             self.textChat.tag_add("name", "1." + str(len(textTime)), "1." + str(len(textTime + name)))
             self.joueur = str(user)
-            
-            if str(user) == "system":
-                return 
-            else:
+            if str(user) == "player":
                 self.message.append(self.message2)
                 print(self.message)
             self.textChat.config(state = DISABLED)
