@@ -261,11 +261,9 @@ class Interface:
             name -> Le nom a afficher
             self.color -> La couleur du texte
         """
-        if self.pseudoEntry.get() == "": return
+        if user == "player" and not isValidPseudo(self.pseudoEntry.get()): 
+            return
         else:
-            character = ['|', '°', '§', '£', 'µ', '&']
-            for z in character:
-                if(str(text).find(z) > -1): return
             if(str(text) == "" or len(text) == text.count(" ")): return
             self.message2 = str(text)
             textTime = strftime('%H:%M:%S : ', localtime())
@@ -286,8 +284,14 @@ class Interface:
                 print(self.message)
             self.textChat.config(state = DISABLED)
         
-        
-
+    def isValidPseudo(self, pseudo):
+        if(pseudo == ""): return False
+        character = ['|', '°', '§', '£', 'µ', '&']
+        for z in character:
+            if(str(text).find(z) > -1): 
+                return False
+        return True
+    
     def connexion(self):
         """
         Permet d'initialiser la connexion
