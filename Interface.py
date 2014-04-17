@@ -312,8 +312,8 @@ class Interface:
         #arret_serv()
 
     def getLastPos(self):
-        print(self.couleur,self.caseX,self.caseY)
-        return [self.caseX, self.caseY, self.couleur]
+        print(self.tourDeJeu % 2,self.caseX,self.caseY)
+        return [self.caseX, self.caseY, self.tourDeJeu % 2]
 
     def getLastChat(self):
         return ["Message1", "Message2", "Message3", "Neko"]
