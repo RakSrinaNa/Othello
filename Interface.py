@@ -321,35 +321,37 @@ class Interface:
 
     def decrypt(self, x):
         try:
-            if x[0] == '0': #0_col_x_y
-                self.placer_pion(int(x[2]), int(x[4]), int(x[6]))
-                return "OK " + str(int(x[1]))+ str(int(x[2])) + str(int(x[3]))
-            elif x[0] == '1': #1_user&mess
-                self.textTraitment(x[x.find('&') + 1:x.find(',')], "opponent", x[x.find(','):], 'red')
-                return "OK " + str(x[x.find('&') + 1:x.find(',')]) + "opponent"  + str(x[x.find(','):]) + 'red'
-            elif x[0] == '8':
-                x = x[1:]
+            if x[0] == '£0': #£0&col&x&y
+                self.placer_pion(int(x[3]), int(x[5]), int(x[7]))
+                return "OK " + str(int(x[3]))+ str(int(x[5])) + str(int(x[7]))
+            elif x[0] == '£1': #£1&user&mess
+                x = x[x.find('&') + 1:]
+                user = x[:x.find('&')]
+                message = x[x.find('&') + 1:]
+                self.textTraitment(user, "opponent", message, 'red')
+                return "OK " + user + "opponent"  + message + 'red'
+            elif x[0] == '£8':
+                x = x[2:]
                 while x.find('£') > -1:
-                    x = x[1:]
-                    y = x
+                    x = x[x.find('£') + 1:]
                     if(x.find('£') > -1):
-                        print(self.decrypt(y[:y.find('£')]))
+                        print(self.decrypt('£' + x[:x.find('£')]))
                         x = x[x.find('£'):]
                     else:
-                        print(fen.decrypt(x))
+                        print(fen.decrypt('£' + x))
                 return "OK 8"
             elif x[0] == '9':
-                mess = '8'
+                mess = '£8'
                 s = self.getLastPos()
                 b = True
                 for a in s:
                     b = b and (str(a) != "None")
                 if b: 
-                    mess += "£0," + str(s[0]) + "&" + str(s[1]) + "&" + str(s[2])
+                    mess += "£0&" + str(s[0]) + "&" + str(s[1]) + "&" + str(s[2])
                 m = self.getLastChat()
                 user = m.pop()
                 for message in m:
-                    mess += "£1&" + user + "," + message
+                    mess += "£1&" + user + "&" + message
                 return mess
         except IndexError as e:
             print(e)
