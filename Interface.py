@@ -14,10 +14,12 @@ import socket
 import select
 import threading
 
+#Johann
 global serverThread, clientThread, fen
 server = False
 serverThread = None
 
+#Johann
 class ThreadClient(threading.Thread):
     def __init__(self, tHote, tPort):
         threading.Thread.__init__(self)
@@ -55,20 +57,24 @@ class ThreadClient(threading.Thread):
     def setAEnvoyer(self, message):
         self.aEnvoyer = message
 
+#Johann
 def envoi(messageType, *args):
     global clientThread
     message = str(messageType)
     for arg in args: message += str(arg)
     clientThread.setAEnvoyer(message)
 
+#Johann
 def arret_client():
     global clientThread
     clientThread.stop()
     
+#Johann
 def lancement_client(hote = "192.168.227.26", port = 50000):
     global clientThread
     clientThread = ThreadClient(hote, port)
-    
+
+#Olivier   
 class Interface:
     def a_accent_maj(self):
         """
@@ -100,6 +106,7 @@ class Interface:
         """
         return chr(0x00ea)
 
+    #Olivier
     def initialisation(self):
         """
         Permet d'initialiser par default
@@ -108,6 +115,7 @@ class Interface:
         self.canvasGrille.delete("pion")
         self.refresh()
 
+    #Olivier
     def refreshBG(self):
         """
         Permet de mettre a jour le fond de jeu
@@ -131,7 +139,7 @@ class Interface:
         elif self.backgroundPrefs.get() == "desert":
             self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundDesert)
         
-
+    #Olivier
     def refresh(self):
         """
         Permet de rafraichir les informations de jeu
@@ -142,6 +150,7 @@ class Interface:
         self.count1Var.set(getNumberColor(self.blanc))
         self.count2Var.set(getNumberColor(self.noir))
 
+    #Olivier
     def placer_pion(self, color, x, y):
         """
         Permet de placer un pion
@@ -157,6 +166,7 @@ class Interface:
         else: return
         self.canvasGrille.create_oval(self.gridOffsetCanvas + (x * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (y * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (x + 1)) - offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (y + 1)) - offsetGrid, tags = "pion", fill = backgroundColor, outline = borderLineColor)
 
+    #Olivier
     def mettre_pion(self, event):
         """
         Recupere un clic souris et joue le pion dans la case appropriee
@@ -172,6 +182,7 @@ class Interface:
             self.tourDeJeu += 1
         self.refresh()
 
+    #Olivier
     def regles(self):
         """
         Permet d'afficher la fenetrePrincipale des regles
@@ -182,6 +193,7 @@ class Interface:
         self.fenetreRegles.resizable(0, 0)
         self.fenetreRegles.mainloop()
 
+    #Olivier
     def preferences(self):
         """
         Permet d'afficher la fenetrePrincipale des preferences
@@ -219,6 +231,7 @@ class Interface:
         Button(self.canvasPlateauPrefs, text = "Valider", command = self.appli_preferences).place(x = 230, y = 200)
         self.fenetrePreferences.mainloop()
 
+    #Olivier
     def appli_preferences(self):
         """
         Permet d'appliquer les changements de preferences a l'interface
@@ -234,6 +247,7 @@ class Interface:
             self.refreshBG()
             self.fenetrePreferences.destroy()
 
+    #Olivier
     def a_propos(self):
         """
         Permet d'afficher la fenetrePrincipale a propos
@@ -244,6 +258,7 @@ class Interface:
         self.fenetreAPropos.resizable(0, 0)
         self.fenetreAPropos.mainloop()
 
+    #Olivier
     def parler(self, event = None):
         """
         Permet au joueur d'envoyer un message dans le chat
@@ -251,6 +266,7 @@ class Interface:
         self.textTraitment(self.chatEntry.get(), "player", str(self.pseudoEntry.get()), self.chatColor)
         self.chatEntry.delete(0, END) 
 
+    #Olivier
     def textTraitment(self, text, user, name, color):
         """
         Permet d'afficher du texte dans la zone appropriee
@@ -283,7 +299,8 @@ class Interface:
                 self.message.append(self.message2)
                 print(self.message)
             self.textChat.config(state = DISABLED)
-        
+       
+    #Olivier 
     def isValidPseudo(self, pseudo):
         if(pseudo == ""): return False
         character = ['|', '°', '§', '£', 'µ', '&']
@@ -292,6 +309,7 @@ class Interface:
                 return False
         return True
     
+    #Olivier
     def connexion(self):
         """
         Permet d'initialiser la connexion
@@ -306,19 +324,23 @@ class Interface:
             self.textChat.config(state = NORMAL)
             self.textChat.config(fg = "red")
             self.textTraitment("Vous " + self.e_circonflexe() + "tes connect" + self.e_aigu() + " en tant que " + str(self.pseudoEntry.get()), "system", "Syst" + self.e_grave() + "me", "red")
-        
+    
+    #Olivier
     def stopInterface(self):
         if tkinter.messagebox.askquestion("", "Voulez vous vraiment quitter ?")=="no": return
         else: self.fenetrePrincipale.destroy()
         #arret_serv()
 
+    #Olivier
     def getLastPos(self):
         print(self.tourDeJeu % 2,self.caseX,self.caseY)
         return [self.caseX, self.caseY, self.tourDeJeu % 2]
 
+    #Olivier
     def getLastChat(self):
         return ["Message1", "Message2", "Message3", "Neko"]
 
+    #Johann
     def decrypt(self, x):
         try:
             if x[0] == '£0': #£0&col&x&y
@@ -358,10 +380,10 @@ class Interface:
             pass
         return "Error " + x
         
+    #Olivier
     def __init__(self):
         #Initialisation des variables
         self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2, self.message= "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None, []
-
 
 
         #from Server import lancement_serv, arret_serv
@@ -480,6 +502,7 @@ class Interface:
 
 fen = Interface()
 
+#Johann
 class ThreadServer(threading.Thread):    
     def __init__(self , tHote = socket.gethostbyname(socket.gethostname()), tPort = 50000):
         threading.Thread.__init__(self)
@@ -518,11 +541,12 @@ class ThreadServer(threading.Thread):
         
     def stop(self):
         self.Terminated = True
-
+#Johann
 def lancement_serv():
     global serverThread
     serverThread = ThreadServer()
 
+#Johann
 def arret_serv():
     global serverThread
     if(serverThread != None):serverThread.stop()
