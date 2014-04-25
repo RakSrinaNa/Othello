@@ -14,12 +14,15 @@ import socket
 import select
 import threading
 
+#Johann
 global serverThread, clientThread, fen
 server = False
 serverThread = None
 
+#Johann
 class ThreadClient(threading.Thread):
     def __init__(self, tHote, tPort):
+        #Initialisation des variables
         threading.Thread.__init__(self)
         self.hote = tHote
         self.port = tPort
@@ -30,45 +33,49 @@ class ThreadClient(threading.Thread):
         
     def run(self):
         self.timer = time.time()
-        connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexionServeur.connect((self.hote, self.port))
+        connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Cration de la connexion au serveur
+        connexionServeur.connect((self.hote, self.port)) #Connexion au serveur
         print("\nConnexion etablie avec le serveur sur le port " + str(self.port))
         message = ""
-        while not self.Terminated:
-            if message != self.aEnvoyer:
-                message = self.aEnvoyer
-                connexionServeur.send(message.encode())
-                messageRecu = connexionServeur.recv(1024).decode()
+        while not self.Terminated: #Tant qu'on ne se deconnecte pas
+            if message != self.aEnvoyer: #Si il y a un nouveau message a envoyer
+                message = self.aEnvoyer #On recupere le message
+                connexionServeur.send(message.encode()) #On envoi le message
+                messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
                 print("Reponse serveur: " + str(messageRecu))
-            if time.time() - self.timer > 5:
-                self.time = time.time()
-                connexionServeur.send("9".encode())
-                messageRecu = connexionServeur.recv(1024).decode()
+            if time.time() - self.timer > 5: #Si il faut actualiser les donnees
+                self.time = time.time() #On remet a zero le times
+                connexionServeur.send("9".encode()) #On envoi une requete 9
+                messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
                 print("Reponse serveur: " + str(messageRecu))
-                fen.decrypt(messageRecu)
+                fen.decrypt(messageRecu) #On decrypte la reponse
         print("Fermeture de la connexion")
-        connexionServeur.close()
+        connexionServeur.close() #Fermeture de la connexion
         
     def stop(self):
-        self.Terminated = True
+        self.Terminated = True #Arret du client (sors de la boucle while)
         
-    def setAEnvoyer(self, message):
-        self.aEnvoyer = message
+    def setAEnvoyer(self, message): 
+        self.aEnvoyer = message #Modifie le message a envoyer
 
-def envoi(messageType, *args):
+#Johann
+def envoi(messageType, *args): #Cree un message de la forme [0-9][*]
     global clientThread
     message = str(messageType)
     for arg in args: message += str(arg)
     clientThread.setAEnvoyer(message)
 
+#Johann
 def arret_client():
     global clientThread
-    clientThread.stop()
+    clientThread.stop() #Arrete le client
     
+#Johann
 def lancement_client(hote = "192.168.227.26", port = 50000):
     global clientThread
     clientThread = ThreadClient(hote, port)
-    
+
+#Olivier   
 class Interface:
     def a_accent_maj(self):
         """
@@ -100,6 +107,7 @@ class Interface:
         """
         return chr(0x00ea)
 
+    #Olivier
     def initialisation(self):
         """
         Permet d'initialiser par default
@@ -108,6 +116,7 @@ class Interface:
         self.canvasGrille.delete("pion")
         self.refresh()
 
+    #Olivier
     def refreshBG(self):
         """
         Permet de mettre a jour le fond de jeu
@@ -131,7 +140,7 @@ class Interface:
         elif self.backgroundPrefs.get() == "desert":
             self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundDesert)
         
-
+    #Olivier
     def refresh(self):
         """
         Permet de rafraichir les informations de jeu
@@ -142,6 +151,7 @@ class Interface:
         self.count1Var.set(getNumberColor(self.blanc))
         self.count2Var.set(getNumberColor(self.noir))
 
+    #Olivier
     def placer_pion(self, color, x, y):
         """
         Permet de placer un pion
@@ -157,6 +167,7 @@ class Interface:
         else: return
         self.canvasGrille.create_oval(self.gridOffsetCanvas + (x * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (y * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (x + 1)) - offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (y + 1)) - offsetGrid, tags = "pion", fill = backgroundColor, outline = borderLineColor)
 
+    #Olivier
     def mettre_pion(self, event):
         """
         Recupere un clic souris et joue le pion dans la case appropriee
@@ -172,6 +183,7 @@ class Interface:
             self.tourDeJeu += 1
         self.refresh()
 
+    #Olivier
     def regles(self):
         """
         Permet d'afficher la fenetrePrincipale des regles
@@ -182,6 +194,7 @@ class Interface:
         self.fenetreRegles.resizable(0, 0)
         self.fenetreRegles.mainloop()
 
+    #Olivier
     def preferences(self):
         """
         Permet d'afficher la fenetrePrincipale des preferences
@@ -219,6 +232,7 @@ class Interface:
         Button(self.canvasPlateauPrefs, text = "Valider", command = self.appli_preferences).place(x = 230, y = 200)
         self.fenetrePreferences.mainloop()
 
+    #Olivier
     def appli_preferences(self):
         """
         Permet d'appliquer les changements de preferences a l'interface
@@ -234,6 +248,7 @@ class Interface:
             self.refreshBG()
             self.fenetrePreferences.destroy()
 
+    #Olivier
     def a_propos(self):
         """
         Permet d'afficher la fenetrePrincipale a propos
@@ -244,6 +259,7 @@ class Interface:
         self.fenetreAPropos.resizable(0, 0)
         self.fenetreAPropos.mainloop()
 
+    #Olivier
     def parler(self, event = None):
         """
         Permet au joueur d'envoyer un message dans le chat
@@ -251,6 +267,7 @@ class Interface:
         self.textTraitment(self.chatEntry.get(), "player", str(self.pseudoEntry.get()), self.chatColor)
         self.chatEntry.delete(0, END) 
 
+    #Olivier
     def textTraitment(self, text, user, name, color):
         """
         Permet d'afficher du texte dans la zone appropriee
@@ -283,7 +300,8 @@ class Interface:
                 self.message.append(self.message2)
                 print(self.message)
             self.textChat.config(state = DISABLED)
-        
+       
+    #Olivier 
     def isValidPseudo(self, pseudo):
         if(pseudo == ""): return False
         character = ['|', '°', '§', '£', 'µ', '&']
@@ -292,6 +310,7 @@ class Interface:
                 return False
         return True
     
+    #Olivier
     def connexion(self):
         """
         Permet d'initialiser la connexion
@@ -306,19 +325,23 @@ class Interface:
             self.textChat.config(state = NORMAL)
             self.textChat.config(fg = "red")
             self.textTraitment("Vous " + self.e_circonflexe() + "tes connect" + self.e_aigu() + " en tant que " + str(self.pseudoEntry.get()), "system", "Syst" + self.e_grave() + "me", "red")
-        
+    
+    #Olivier
     def stopInterface(self):
         if tkinter.messagebox.askquestion("", "Voulez vous vraiment quitter ?")=="no": return
         else: self.fenetrePrincipale.destroy()
         #arret_serv()
 
+    #Olivier
     def getLastPos(self):
         print(self.tourDeJeu % 2,self.caseX,self.caseY)
         return [self.caseX, self.caseY, self.tourDeJeu % 2]
 
+    #Olivier
     def getLastChat(self):
         return ["Message1", "Message2", "Message3", "Neko"]
 
+    #Johann
     def decrypt(self, x):
         try:
             if x[0] == '£0': #£0&col&x&y
@@ -358,10 +381,10 @@ class Interface:
             pass
         return "Error " + x
         
+    #Olivier
     def __init__(self):
         #Initialisation des variables
         self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2, self.message= "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None, []
-
 
 
         #from Server import lancement_serv, arret_serv
@@ -480,7 +503,8 @@ class Interface:
 
 fen = Interface()
 
-class ThreadServer(threading.Thread):    
+#Johann
+class ThreadServer(threading.Thread):    #Init vars
     def __init__(self , tHote = socket.gethostbyname(socket.gethostname()), tPort = 50000):
         threading.Thread.__init__(self)
         self.hote = tHote
@@ -490,27 +514,27 @@ class ThreadServer(threading.Thread):
         self.start()
         
     def run(self):
-        connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexionPrincipale.bind((self.hote, self.port))
-        connexionPrincipale.listen(5)
+        connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Creation variable de co
+        connexionPrincipale.bind((self.hote, self.port)) #On definit IP + port
+        connexionPrincipale.listen(5) #On lance la l'ecoute de requetes
         server = "Bienvenue sur le serveur OTHELLO ({}:{})".format(self.hote, self.port)
         print("\n" + server.upper().center(85) + "\nTraitement des donnees :\n")
         clientsConnectes = []
         while not self.Terminated:
-            connexionsEntrantes, wlist, xlist = select.select([connexionPrincipale], [], [], 0.05)
-            for connexion in connexionsEntrantes:
-                connexionClient, infosConnexion = connexion.accept()
-                clientsConnectes.append(connexionClient)
-            clientsALire = []
             try:
-                clientsALire, wlist, xlist = select.select(clientsConnectes, [], [], 0.05)
+                connexionsEntrantes, wlist, xlist = select.select([connexionPrincipale], [], [], 0.05) #On choppe les clients co sur le serv
+                for connexion in connexionsEntrantes: #Pour chacun d'entre eux, on accepte leur connexion
+                    connexionClient, infosConnexion = connexion.accept()
+                    clientsConnectes.append(connexionClient)
+                clientsALire = []
+                clientsALire, wlist, xlist = select.select(clientsConnectes, [], [], 0.05) #On choppe la liste des requetes
+                for client in clientsALire: #Pour chaque requete
+                    messageRecu = client.recv(1024) #On recupere le message
+                    messageRecu = messageRecu.decode()
+                    print("> " + messageRecu)
+                    client.send(fen.decrypt(messageRecu).encode()) #On envoi la reponse au client
             except select.error:
                 pass
-            for client in clientsALire:
-                messageRecu = client.recv(1024)
-                messageRecu = messageRecu.decode()
-                print("> " + messageRecu)
-                client.send(fen.decrypt(messageRecu).encode())
         print("Fermeture des connexions")
         for client in clientsConnectes:
             client.close()
@@ -518,11 +542,12 @@ class ThreadServer(threading.Thread):
         
     def stop(self):
         self.Terminated = True
-
+#Johann
 def lancement_serv():
     global serverThread
     serverThread = ThreadServer()
 
+#Johann
 def arret_serv():
     global serverThread
     if(serverThread != None):serverThread.stop()
