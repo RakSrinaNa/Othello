@@ -22,6 +22,7 @@ serverThread = None
 #Johann
 class ThreadClient(threading.Thread):
     def __init__(self, tHote, tPort):
+        #Initialisation des variables
         threading.Thread.__init__(self)
         self.hote = tHote
         self.port = tPort
@@ -32,33 +33,33 @@ class ThreadClient(threading.Thread):
         
     def run(self):
         self.timer = time.time()
-        connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexionServeur.connect((self.hote, self.port))
+        connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Cration de la connexion au serveur
+        connexionServeur.connect((self.hote, self.port)) #Connexion au serveur
         print("\nConnexion etablie avec le serveur sur le port " + str(self.port))
         message = ""
-        while not self.Terminated:
-            if message != self.aEnvoyer:
-                message = self.aEnvoyer
-                connexionServeur.send(message.encode())
-                messageRecu = connexionServeur.recv(1024).decode()
+        while not self.Terminated: #Tant qu'on ne se deconnecte pas
+            if message != self.aEnvoyer: #Si il y a un nouveau message a envoyer
+                message = self.aEnvoyer #On recupere le message
+                connexionServeur.send(message.encode()) #On envoi le message
+                messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
                 print("Reponse serveur: " + str(messageRecu))
-            if time.time() - self.timer > 5:
-                self.time = time.time()
-                connexionServeur.send("9".encode())
-                messageRecu = connexionServeur.recv(1024).decode()
+            if time.time() - self.timer > 5: #Si il faut actualiser les donnees
+                self.time = time.time() #On remet a zero le times
+                connexionServeur.send("9".encode()) #On envoi une requete 9
+                messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
                 print("Reponse serveur: " + str(messageRecu))
-                fen.decrypt(messageRecu)
+                fen.decrypt(messageRecu) #On decrypte la reponse
         print("Fermeture de la connexion")
-        connexionServeur.close()
+        connexionServeur.close() #Fermeture de la connexion
         
     def stop(self):
-        self.Terminated = True
+        self.Terminated = True #Arret du client (sors de la boucle while)
         
-    def setAEnvoyer(self, message):
-        self.aEnvoyer = message
+    def setAEnvoyer(self, message): 
+        self.aEnvoyer = message #Modifie le message a envoyer
 
 #Johann
-def envoi(messageType, *args):
+def envoi(messageType, *args): #Cree un message de la forme [0-9][*]
     global clientThread
     message = str(messageType)
     for arg in args: message += str(arg)
@@ -67,7 +68,7 @@ def envoi(messageType, *args):
 #Johann
 def arret_client():
     global clientThread
-    clientThread.stop()
+    clientThread.stop() #Arrete le client
     
 #Johann
 def lancement_client(hote = "192.168.227.26", port = 50000):
@@ -503,7 +504,7 @@ class Interface:
 fen = Interface()
 
 #Johann
-class ThreadServer(threading.Thread):    
+class ThreadServer(threading.Thread):    #Init vars
     def __init__(self , tHote = socket.gethostbyname(socket.gethostname()), tPort = 50000):
         threading.Thread.__init__(self)
         self.hote = tHote
@@ -513,27 +514,27 @@ class ThreadServer(threading.Thread):
         self.start()
         
     def run(self):
-        connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexionPrincipale.bind((self.hote, self.port))
-        connexionPrincipale.listen(5)
+        connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Creation variable de co
+        connexionPrincipale.bind((self.hote, self.port)) #On definit IP + port
+        connexionPrincipale.listen(5) #On lance la l'ecoute de requetes
         server = "Bienvenue sur le serveur OTHELLO ({}:{})".format(self.hote, self.port)
         print("\n" + server.upper().center(85) + "\nTraitement des donnees :\n")
         clientsConnectes = []
         while not self.Terminated:
-            connexionsEntrantes, wlist, xlist = select.select([connexionPrincipale], [], [], 0.05)
-            for connexion in connexionsEntrantes:
-                connexionClient, infosConnexion = connexion.accept()
-                clientsConnectes.append(connexionClient)
-            clientsALire = []
             try:
-                clientsALire, wlist, xlist = select.select(clientsConnectes, [], [], 0.05)
+                connexionsEntrantes, wlist, xlist = select.select([connexionPrincipale], [], [], 0.05) #On choppe les clients co sur le serv
+                for connexion in connexionsEntrantes: #Pour chacun d'entre eux, on accepte leur connexion
+                    connexionClient, infosConnexion = connexion.accept()
+                    clientsConnectes.append(connexionClient)
+                clientsALire = []
+                clientsALire, wlist, xlist = select.select(clientsConnectes, [], [], 0.05) #On choppe la liste des requetes
+                for client in clientsALire: #Pour chaque requete
+                    messageRecu = client.recv(1024) #On recupere le message
+                    messageRecu = messageRecu.decode()
+                    print("> " + messageRecu)
+                    client.send(fen.decrypt(messageRecu).encode()) #On envoi la reponse au client
             except select.error:
                 pass
-            for client in clientsALire:
-                messageRecu = client.recv(1024)
-                messageRecu = messageRecu.decode()
-                print("> " + messageRecu)
-                client.send(fen.decrypt(messageRecu).encode())
         print("Fermeture des connexions")
         for client in clientsConnectes:
             client.close()
