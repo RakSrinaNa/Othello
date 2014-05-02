@@ -38,17 +38,20 @@ class ThreadClient(threading.Thread):
         print("\nConnexion etablie avec le serveur sur le port " + str(self.port))
         message = ""
         while not self.Terminated: #Tant qu'on ne se deconnecte pas
-            if message != self.aEnvoyer: #Si il y a un nouveau message a envoyer
-                message = self.aEnvoyer #On recupere le message
-                connexionServeur.send(message.encode()) #On envoi le message
-                messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
-                print("Reponse serveur: " + str(messageRecu))
-            if time.time() - self.timer > 5: #Si il faut actualiser les donnees
-                self.time = time.time() #On remet a zero le times
-                connexionServeur.send("9".encode()) #On envoi une requete 9
-                messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
-                print("Reponse serveur: " + str(messageRecu))
-                fen.decrypt(messageRecu) #On decrypte la reponse
+            try:
+                if message != self.aEnvoyer: #Si il y a un nouveau message a envoyer
+                    message = self.aEnvoyer #On recupere le message
+                    connexionServeur.send(message.encode()) #On envoi le message
+                    messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
+                    print("Reponse serveur: " + str(messageRecu))
+                if time.time() - self.timer > 10: #Si il faut actualiser les donnees
+                    self.timer = time.time() #On remet a zero le times
+                    connexionServeur.send("9".encode()) #On envoi une requete 9
+                    messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
+                    print("Reponse 9 serveur: " + str(messageRecu))
+                    fen.decrypt(messageRecu) #On decrypte la reponse
+            except "ConnectionAbortedError":
+                print()
         print("Fermeture de la connexion")
         connexionServeur.close() #Fermeture de la connexion
         
@@ -71,7 +74,7 @@ def arret_client():
     clientThread.stop() #Arrete le client
     
 #Johann
-def lancement_client(hote = "192.168.227.26", port = 50000):
+def lancement_client(hote = "192.168.0.14", port = 50000):
     global clientThread
     clientThread = ThreadClient(hote, port)
 
@@ -168,20 +171,24 @@ class Interface:
         self.canvasGrille.create_oval(self.gridOffsetCanvas + (x * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (y * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (x + 1)) - offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (y + 1)) - offsetGrid, tags = "pion", fill = backgroundColor, outline = borderLineColor)
 
     #Olivier
-    def mettre_pion(self, event):
+    def mettre_pion(self, color, x, y):
+        c = self.lastPlayed
+        if(color != self.lastPlayed):
+            if(place(color, x, y) == 0):
+                self.caseX = x
+                self.caseY = y
+                self.lastPlayed = color
+            self.refresh()
+
+    #Olivier
+    def clic_pion(self, event):
         """
         Recupere un clic souris et joue le pion dans la case appropriee
         
         Arguments:
             event -> L'event du clic
         """
-        if(place(1 + (self.tourDeJeu % 2), ((event.x) - self.gridOffsetCanvas) // self.tailleCase, ((event.y) - self.gridOffsetCanvas) // self.tailleCase) == 0):
-            self.caseX = (((event.x) - self.gridOffsetCanvas) // self.tailleCase) 
-            self.caseY = (((event.y) - self.gridOffsetCanvas) // self.tailleCase)
-            self.couleur = self.tourDeJeu % 2 + 1
-            self.getLastPos()
-            self.tourDeJeu += 1
-        self.refresh()
+        self.mettre_pion(self.colorPlayer, ((event.x) - self.gridOffsetCanvas) // self.tailleCase, ((event.y) - self.gridOffsetCanvas) // self.tailleCase)
 
     #Olivier
     def regles(self):
@@ -267,6 +274,15 @@ class Interface:
         self.textTraitment(self.chatEntry.get(), "player", str(self.pseudoEntry.get()), self.chatColor)
         self.chatEntry.delete(0, END) 
 
+    #Olivier 
+    def isValidPseudo(self, pseudo):
+        if(pseudo == ""): return False
+        character = ['|', '°', '§', '£', 'µ', '&']
+        for z in character:
+            if(str(pseudo).find(z) > -1): 
+                return False
+        return True
+
     #Olivier
     def textTraitment(self, text, user, name, color):
         """
@@ -278,7 +294,8 @@ class Interface:
             name -> Le nom a afficher
             self.color -> La couleur du texte
         """
-        if user == "player" and not isValidPseudo(self.pseudoEntry.get()): 
+        validPseudo = self.isValidPseudo(self.pseudoEntry.get())
+        if user == "player" and not validPseudo: 
             return
         else:
             if(str(text) == "" or len(text) == text.count(" ")): return
@@ -300,15 +317,6 @@ class Interface:
                 self.message.append(self.message2)
                 print(self.message)
             self.textChat.config(state = DISABLED)
-       
-    #Olivier 
-    def isValidPseudo(self, pseudo):
-        if(pseudo == ""): return False
-        character = ['|', '°', '§', '£', 'µ', '&']
-        for z in character:
-            if(str(text).find(z) > -1): 
-                return False
-        return True
     
     #Olivier
     def connexion(self):
@@ -339,21 +347,24 @@ class Interface:
 
     #Olivier
     def getLastChat(self):
-        return ["Message1", "Message2", "Message3", "Neko"]
+        m = self.message
+        m.append(self.pseudoEntry.get())
+        self.message = [];
+        return m
 
     #Johann
     def decrypt(self, x):
         try:
-            if x[0] == '£0': #£0&col&x&y
-                self.placer_pion(int(x[3]), int(x[5]), int(x[7]))
-                return "OK " + str(int(x[3]))+ str(int(x[5])) + str(int(x[7]))
-            elif x[0] == '£1': #£1&user&mess
+            if x[0:2] == '£0': #£0&col&x&y
+                self.mettre_pion(int(x[3]), int(x[5]), int(x[7]))
+                return "OK " + str(x[3])+ str(x[5]) + str(x[7])
+            elif x[0:2] == '£1': #£1&user&mess
                 x = x[x.find('&') + 1:]
                 user = x[:x.find('&')]
                 message = x[x.find('&') + 1:]
                 self.textTraitment(user, "opponent", message, 'red')
                 return "OK " + user + "opponent"  + message + 'red'
-            elif x[0] == '£8':
+            elif x[0:2] == '£8':
                 x = x[2:]
                 while x.find('£') > -1:
                     x = x[x.find('£') + 1:]
@@ -372,9 +383,10 @@ class Interface:
                 if b: 
                     mess += "£0&" + str(s[0]) + "&" + str(s[1]) + "&" + str(s[2])
                 m = self.getLastChat()
-                user = m.pop()
-                for message in m:
-                    mess += "£1&" + user + "&" + message
+                if(m != None):
+                    user = m.pop()
+                    for message in m:
+                        mess += "£1&" + user + "&" + message
                 return mess
         except IndexError as e:
             print(e)
@@ -384,8 +396,10 @@ class Interface:
     #Olivier
     def __init__(self):
         #Initialisation des variables
-        self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2, self.message= "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None, []
-
+        self.caseX, self.caseY, self.colorPlayer, self.lastPlayed, self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2, self.message= 9, 9, 0, 0, "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None, []
+        if(server): self.colorPlayer = self.noir
+        else: self.colorPlayer = self.blanc
+        self.lastPlayed = self.blanc
 
         #from Server import lancement_serv, arret_serv
         #self.fenetreConnexion = Tk()
@@ -444,7 +458,7 @@ class Interface:
         #Creation du canvas contenant la grille de jeu
         self.canvasGrille = Canvas(self.fenetrePrincipale, bg = self.colorVert, height = 450, width = 435)
         self.canvasGrille.place(x = 0, y = 0)
-        self.canvasGrille.bind("<Button-1>", self.mettre_pion)
+        self.canvasGrille.bind("<Button-1>", self.clic_pion)
         Label(self.canvasGrille, text = "A", font = self.Comic, bg = self.colorVert).place(x = 45, y = self.yOffsetCanvas)
         Label(self.canvasGrille, text = "B", font = self.Comic, bg = self.colorVert).place(x = 95, y = self.yOffsetCanvas)
         Label(self.canvasGrille, text = "C", font = self.Comic, bg = self.colorVert).place(x = 145, y = self.yOffsetCanvas)
