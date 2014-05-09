@@ -141,7 +141,7 @@ def place(color, x , y):
         2 -> Impossible de placer le pion
     """
     if(getColor(x, y) == 3 or not hasPawnNext(color, x, y)): return 2 #Si en dehors de la grille ou n'a pas de pion adverse a cote, on ne peut pas jouer
-    elif(getColor(x, y) != 0): return 1 #Si la case n'est aps vide, on ne peut pas jouer
+    elif(getColor(x, y) != 0): return 1 #Si la case n'est pas vide, on ne peut pas jouer
     try:
         pawnList = detectPawn(color, x, y) #On recupere la liste des lignes a retourner
         while(pawnList.count(None) > 0):pawnList.remove(None) #Retire les 'None' de la liste
