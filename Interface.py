@@ -6,8 +6,7 @@
 #from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage, Radiobutton, Toplevel
 import tkinter.messagebox
 import time
-import sys
-from tkinter import*
+from tkinter import Tk, Toplevel, Canvas, Button, DISABLED, END, Entry, Label, Menu, NORMAL, PhotoImage, Radiobutton, StringVar, Text
 from Game import init, getColor, place, getNumberColor
 from time import localtime, strftime
 import socket
@@ -18,6 +17,7 @@ import threading
 global serverThread, clientThread, fen
 server = False
 serverThread = None
+IP = "192.168.0.12"
 
 #Johann
 class ThreadClient(threading.Thread):
@@ -44,9 +44,9 @@ class ThreadClient(threading.Thread):
                     connexionServeur.send(message.encode()) #On envoi le message
                     messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
                     print("Reponse serveur: " + str(messageRecu))
-                if time.time() - self.timer > 10: #Si il faut actualiser les donnees
+                if time.time() - self.timer > 0.5: #Si il faut actualiser les donnees
                     self.timer = time.time() #On remet a zero le temsps
-                    connexionServeur.send("9".encode()) #On envoi une requete 9
+                    connexionServeur.send("£9".encode()) #On envoi une requete 9
                     messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
                     print("Reponse 9 serveur: " + str(messageRecu))
                     fen.decrypt(messageRecu) #On decrypte la reponse
@@ -64,8 +64,9 @@ class ThreadClient(threading.Thread):
 #Johann
 def envoi(messageType, *args): #Cree un message de la forme [0-9][*]
     global clientThread
-    message = str(messageType)
-    for arg in args: message += str(arg)
+    message = str('£' + messageType)
+    for arg in args: 
+        message += '&' + str(arg)
     clientThread.setAEnvoyer(message)
 
 #Johann
@@ -74,7 +75,7 @@ def arret_client():
     clientThread.stop() #Arrete le client
     
 #Johann
-def lancement_client(hote = "192.168.224.186", port = 50000):
+def lancement_client(hote = IP, port = 50000):
     global clientThread
     clientThread = ThreadClient(hote, port)
 
@@ -117,6 +118,7 @@ class Interface:
         """
         init()
         self.canvasGrille.delete("pion")
+        self.lastPlayed = self.blanc
         self.refresh()
 
     #Olivier
@@ -172,9 +174,9 @@ class Interface:
 
     #Olivier
     def mettre_pion(self, color, x, y):
-        c = self.lastPlayed
         if(color != self.lastPlayed):
             if(place(color, x, y) == 0):
+                if(not server): envoi("0", color, x, y)
                 self.caseX = x
                 self.caseY = y
                 self.lastPlayed = color
@@ -273,13 +275,14 @@ class Interface:
         """
         Permet au joueur d'envoyer un message dans le chat
         """
+        #print(self.decrypt(self.chatEntry.get()))
         self.textTraitment(self.chatEntry.get(), "player", str(self.pseudoEntry.get()), self.chatColor)
         self.chatEntry.delete(0, END) 
 
     #Olivier 
     def isValidPseudo(self, pseudo):
         if(pseudo == ""): return False
-        character = ['|', 'Â°', 'Â§', 'Â£', 'Âµ', '&']
+        character = ['|', '°', '§', '£', 'µ', '&', '£']
         for z in character:
             if(str(pseudo).find(z) > -1): 
                 return False
@@ -300,13 +303,13 @@ class Interface:
         self.textTime = strftime('%H:%M:%S : ', localtime())
         self.name = str(user)
         self.text = self.textTime + str(self.name) + " -> " + str(self.text)
-        self.message2 = str(text)
+        message2 = str(text)
         validPseudo = self.isValidPseudo(self.pseudoEntry.get())
         if user == "player" and not validPseudo: 
             return
         else:
             if(str(text) == "" or len(text) == text.count(" ")): return
-            self.message2 = str(text)
+            message2 = str(text)
             textTime = strftime('%H:%M:%S : ', localtime())
             text = textTime + str(name) + " -> " + str(text)
             self.textChat.config(state = NORMAL)
@@ -320,9 +323,11 @@ class Interface:
             self.textChat.tag_configure("name", foreground = colorUser)
             self.textChat.tag_add("name", "1." + str(len(textTime)), "1." + str(len(textTime + name)))
             self.joueur = str(user)
-            if str(user) == "player":
-                self.message.append(self.message2)
+            if server and user == "player":
+                self.message.append(message2)
                 print(self.message)
+            elif user == "player":
+                envoi("1", name, message2)
             self.textChat.config(state = DISABLED)
     
     #Olivier
@@ -332,7 +337,7 @@ class Interface:
         """
         Label(self.canvasInfos, text = " " + str(self.pseudoEntry.get()), bg = self.colorVert, fg = 'red').place(x = 50, y = 2)
         pseudo = self.pseudoEntry.get()
-        if pseudo == "" or self.pseudoEntry.get().find('&') > -1 or self.pseudoEntry.get().find('Â£') > -1:
+        if pseudo == "" or self.pseudoEntry.get().find('&') > -1 or self.pseudoEntry.get().find('£') > -1:
             tkinter.messagebox.showerror("Erreur", "Vous devez rentrer un psuedo valide")
         else:
             self.pseudoEntry.place_forget()
@@ -349,51 +354,68 @@ class Interface:
 
     #Olivier
     def getLastPos(self):
-        print(self.tourDeJeu % 2,self.caseX,self.caseY)
-        return [self.caseX, self.caseY, self.tourDeJeu % 2]
+        print(self.lastPlayed,self.caseX,self.caseY)
+        return [self.lastPlayed, self.caseX, self.caseY]
 
     #Olivier
     def getLastChat(self):
-        m = self.message
-        m.append(self.pseudoEntry.get())
-        self.message = [];
-        return m
+        if(len(self.message) > 0):
+            m = self.message
+            m.append(self.pseudoEntry.get())
+            self.message = [];
+            return m
+        return None
+
+    def passer(self):
+        if(self.lastPlayed != self.colorPlayer):
+            self.lastPlayed = self.colorPlayer
+            if(server): self.requet = "£7"
+            else: envoi("7")
 
     #Johann
     def decrypt(self, x):
         try:
-            if x[0:2] == 'Â£0': #Â£0&col&x&y
+            if x[0:2] == '£0': #£0&col&x&y
                 self.mettre_pion(int(x[3]), int(x[5]), int(x[7]))
                 return "OK " + str(x[3])+ str(x[5]) + str(x[7])
-            elif x[0:2] == 'Â£1': #Â£1&user&mess
+            elif x[0:2] == '£1': #£1&user&mess
                 x = x[x.find('&') + 1:]
                 user = x[:x.find('&')]
                 message = x[x.find('&') + 1:]
-                self.textTraitment(user, "opponent", message, 'red')
-                return "OK " + user + "opponent"  + message + 'red'
-            elif x[0:2] == 'Â£8':
+                self.textTraitment(message, "opponent", user, 'red')
+                return "OK " + message + "opponent"  + user + 'red'
+            elif x[0:2] == "£7":
+                self.textTraitment("A votre tour de jouer", "system", "Syst" + self.e_grave() + "me", "red");
+                self.lastPlayed = 0
+                return "OK 7"
+            elif x[0:2] == '£8':
                 x = x[2:]
-                while x.find('Â£') > -1:
-                    x = x[x.find('Â£') + 1:]
-                    if(x.find('Â£') > -1):
-                        print(self.decrypt('Â£' + x[:x.find('Â£')]))
-                        x = x[x.find('Â£'):]
+                while x.find('£') > -1:
+                    x = x[x.find('£') + 1:]
+                    if(x.find('£') > -1):
+                        print(self.decrypt('£' + x[:x.find('£')]))
+                        x = x[x.find('£'):]
                     else:
-                        print(fen.decrypt('Â£' + x))
-                return "OK 8"
-            elif x[0] == '9':
-                mess = 'Â£8'
+                        print(fen.decrypt('£' + x))
+                return "OK 8"                
+            elif x[0:2] == '£9':
+                mess = '£8'
                 s = self.getLastPos()
                 b = True
                 for a in s:
                     b = b and (str(a) != "None")
                 if b: 
-                    mess += "Â£0&" + str(s[0]) + "&" + str(s[1]) + "&" + str(s[2])
+                    mess += "£0&" + str(s[0]) + "&" + str(s[1]) + "&" + str(s[2])
                 m = self.getLastChat()
+                print(m)
+                if(self.requet != None):
+                    mess += self.requet
+                    self.requet = None
                 if(m != None):
                     user = m.pop()
                     for message in m:
-                        mess += "Â£1&" + user + "&" + message
+                        mess += "£1&" + user + "&" + message
+                print("OK 9")
                 return mess
         except IndexError as e:
             print(e)
@@ -403,7 +425,7 @@ class Interface:
     #Olivier
     def __init__(self):
         #Initialisation des variables
-        self.caseX, self.caseY, self.colorPlayer, self.lastPlayed, self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2, self.message= 9, 9, 0, 0, "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None, []
+        self.requet, self.caseX, self.caseY, self.colorPlayer, self.lastPlayed, self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2, self.message= None, 9, 9, 0, 0, "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None, []
         if(server): self.colorPlayer = self.noir
         else: self.colorPlayer = self.blanc
         self.lastPlayed = self.blanc
@@ -515,6 +537,7 @@ class Interface:
         self.textChat.config(fg = "black")
         self.textChat.place(x = 20, y = 185)
         Button(self.canvasInfos, text = "Nouvelle partie" , command = self.initialisation).place(x = 270, y = 1)
+        Button(self.canvasInfos, text = "Passer son tour", command = self.passer).place(x = 270, y = 30)
         self.canvasInfos.create_line(100, 150, 180, 150)
         self.canvasInfos.create_line(100, 65, 100, 150)
         self.canvasInfos.create_line(100, 65, 180, 65)
