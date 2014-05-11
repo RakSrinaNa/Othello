@@ -197,13 +197,13 @@ class Interface:
         """
         Permet d'afficher la fenetrePrincipale des regles
         """
-        self.fenetreRegles = Tk()
-        self.fenetreRegles.title("R" + self.e_grave() + "gles du jeu")
-        self.fenetreRegles.geometry("600x450")
-        self.fenetreRegles.resizable(0, 0)
-        Label(self.fenetreRegles, text = "Le joueur utilisant les pions noirs commence toujours la partie, puis les joueurs \n jouent à tour de rôle, chacun devant \n capturer des pions adverse lors de son mouvement. \n Si un joueur ne peut pas capturer de pion adverse, il est forcé de passer son tour. \n Si aucun des deux joueurs ne peut jouer, ou que l' Othellier ne comporte plus de cases vide, \n la partie s' arrête.").place(x = 0, y = 50)
-        Label(self.fenetreRegles, text = "La capture de pions survient lorsqu'un joueur place l'un de ses pions \n à l' extrémité d'un alignement de pions adverses et dont l' autre extrémité \n est déjà occupée par un de ses propres pions. \n Les alignements considérés peuvent être une colonne, une ligne, ou une diagonale. \n Si le pion nouvellement placé ferme plusieurs alignements, \n il capture tout les pions \n adverses dans chaque alignement fermé. La capture se traduit par \n le retournement des pions capturés.\n Ces retournements n'entraînent pas d' effets en cascade :\n seul le pion nouvellement posé est pris en compte.").place(x = 40, y = 250)
-        self.fenetreRegles.mainloop()
+        fenetreRegles = Tk()
+        fenetreRegles.title("R" + self.e_grave() + "gles du jeu")
+        fenetreRegles.geometry("600x450")
+        fenetreRegles.resizable(0, 0)
+        Label(fenetreRegles, text = "Le joueur utilisant les pions noirs commence toujours la partie, puis les joueurs \n jouent à tour de rôle, chacun devant \n capturer des pions adverse lors de son mouvement. \n Si un joueur ne peut pas capturer de pion adverse, il est forcé de passer son tour. \n Si aucun des deux joueurs ne peut jouer, ou que l' Othellier ne comporte plus de cases vide, \n la partie s' arrête.").place(x = 0, y = 50)
+        Label(fenetreRegles, text = "La capture de pions survient lorsqu'un joueur place l'un de ses pions \n à l' extrémité d'un alignement de pions adverses et dont l' autre extrémité \n est déjà occupée par un de ses propres pions. \n Les alignements considérés peuvent être une colonne, une ligne, ou une diagonale. \n Si le pion nouvellement placé ferme plusieurs alignements, \n il capture tout les pions \n adverses dans chaque alignement fermé. La capture se traduit par \n le retournement des pions capturés.\n Ces retournements n'entraînent pas d' effets en cascade :\n seul le pion nouvellement posé est pris en compte.").place(x = 40, y = 250)
+        fenetreRegles.mainloop()
 
     #Olivier
     def preferences(self):
