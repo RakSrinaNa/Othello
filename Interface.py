@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-@author: Olivier Froger
+@author: Olivier Froger & Johann Jacques
 '''
 
 #from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage, Radiobutton, Toplevel
