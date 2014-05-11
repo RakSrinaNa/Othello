@@ -1,25 +1,28 @@
 # -*- coding: utf-8 -*-
 '''
-@author: Olivier Froger
+@author: Olivier Froger & Johann Jacques
 '''
 
 #from tkinter import Tk, Label, Button, Menu, Canvas, StringVar, Entry, Text, NORMAL, DISABLED, END, PhotoImage, Radiobutton, Toplevel
 import tkinter.messagebox
 import time
-import sys
-from tkinter import*
+from tkinter import Tk, Toplevel, Canvas, Button, DISABLED, END, Entry, Label, Menu, NORMAL, PhotoImage, Radiobutton, StringVar, Text
 from Game import init, getColor, place, getNumberColor
 from time import localtime, strftime
 import socket
 import select
 import threading
 
+#Johann
 global serverThread, clientThread, fen
 server = False
 serverThread = None
+IP = "192.168.0.12"
 
+#Johann
 class ThreadClient(threading.Thread):
     def __init__(self, tHote, tPort):
+        #Initialisation des variables
         threading.Thread.__init__(self)
         self.hote = tHote
         self.port = tPort
@@ -30,45 +33,53 @@ class ThreadClient(threading.Thread):
         
     def run(self):
         self.timer = time.time()
-        connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexionServeur.connect((self.hote, self.port))
+        connexionServeur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Creation de la connexion au serveur
+        connexionServeur.connect((self.hote, self.port)) #Connexion au serveur
         print("\nConnexion etablie avec le serveur sur le port " + str(self.port))
         message = ""
-        while not self.Terminated:
-            if message != self.aEnvoyer:
-                message = self.aEnvoyer
-                connexionServeur.send(message.encode())
-                messageRecu = connexionServeur.recv(1024).decode()
-                print("Reponse serveur: " + str(messageRecu))
-            if time.time() - self.timer > 5:
-                self.time = time.time()
-                connexionServeur.send("9".encode())
-                messageRecu = connexionServeur.recv(1024).decode()
-                print("Reponse serveur: " + str(messageRecu))
-                fen.decrypt(messageRecu)
+        while not self.Terminated: #Tant qu'on ne se deconnecte pas
+            try:
+                if message != self.aEnvoyer: #Si il y a un nouveau message a envoyer
+                    message = self.aEnvoyer #On recupere le message
+                    connexionServeur.send(message.encode()) #On envoi le message
+                    messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
+                    print("Reponse serveur: " + str(messageRecu))
+                if time.time() - self.timer > 0.5: #Si il faut actualiser les donnees
+                    self.timer = time.time() #On remet a zero le temsps
+                    connexionServeur.send("£9".encode()) #On envoi une requete 9
+                    messageRecu = connexionServeur.recv(1024).decode() #On recupere la reponse du serveur
+                    print("Reponse 9 serveur: " + str(messageRecu))
+                    fen.decrypt(messageRecu) #On decrypte la reponse
+            except "ConnectionAbortedError":
+                print()
         print("Fermeture de la connexion")
-        connexionServeur.close()
+        connexionServeur.close() #Fermeture de la connexion
         
     def stop(self):
-        self.Terminated = True
+        self.Terminated = True #Arret du client (sors de la boucle while)
         
-    def setAEnvoyer(self, message):
-        self.aEnvoyer = message
+    def setAEnvoyer(self, message): 
+        self.aEnvoyer = message #Modifie le message a envoyer
 
-def envoi(messageType, *args):
+#Johann
+def envoi(messageType, *args): #Cree un message de la forme [0-9][*]
     global clientThread
-    message = str(messageType)
-    for arg in args: message += str(arg)
+    message = str('£' + messageType)
+    for arg in args: 
+        message += '&' + str(arg)
     clientThread.setAEnvoyer(message)
 
+#Johann
 def arret_client():
     global clientThread
-    clientThread.stop()
+    clientThread.stop() #Arrete le client
     
-def lancement_client(hote = "192.168.227.26", port = 50000):
+#Johann
+def lancement_client(hote = IP, port = 50000):
     global clientThread
     clientThread = ThreadClient(hote, port)
-    
+
+#Olivier   
 class Interface:
     def a_accent_maj(self):
         """
@@ -100,14 +111,17 @@ class Interface:
         """
         return chr(0x00ea)
 
+    #Olivier
     def initialisation(self):
         """
         Permet d'initialiser par default
         """
         init()
         self.canvasGrille.delete("pion")
+        self.lastPlayed = self.blanc
         self.refresh()
 
+    #Olivier
     def refreshBG(self):
         """
         Permet de mettre a jour le fond de jeu
@@ -131,7 +145,7 @@ class Interface:
         elif self.backgroundPrefs.get() == "desert":
             self.canvasGrille.itemconfigure(self.background, image = self.photoBackgroundDesert)
         
-
+    #Olivier
     def refresh(self):
         """
         Permet de rafraichir les informations de jeu
@@ -142,6 +156,7 @@ class Interface:
         self.count1Var.set(getNumberColor(self.blanc))
         self.count2Var.set(getNumberColor(self.noir))
 
+    #Olivier
     def placer_pion(self, color, x, y):
         """
         Permet de placer un pion
@@ -157,21 +172,27 @@ class Interface:
         else: return
         self.canvasGrille.create_oval(self.gridOffsetCanvas + (x * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (y * self.tailleCase) + offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (x + 1)) - offsetGrid, self.gridOffsetCanvas + (self.tailleCase * (y + 1)) - offsetGrid, tags = "pion", fill = backgroundColor, outline = borderLineColor)
 
-    def mettre_pion(self, event):
+    #Olivier
+    def mettre_pion(self, color, x, y):
+        if(color != self.lastPlayed):
+            if(place(color, x, y) == 0):
+                if(not server): envoi("0", color, x, y)
+                self.caseX = x
+                self.caseY = y
+                self.lastPlayed = color
+            self.refresh()
+
+    #Olivier
+    def clic_pion(self, event):
         """
         Recupere un clic souris et joue le pion dans la case appropriee
         
         Arguments:
             event -> L'event du clic
         """
-        if(place(1 + (self.tourDeJeu % 2), ((event.x) - self.gridOffsetCanvas) // self.tailleCase, ((event.y) - self.gridOffsetCanvas) // self.tailleCase) == 0):
-            self.caseX = (((event.x) - self.gridOffsetCanvas) // self.tailleCase) 
-            self.caseY = (((event.y) - self.gridOffsetCanvas) // self.tailleCase)
-            self.couleur = self.tourDeJeu % 2 + 1
-            self.getLastPos()
-            self.tourDeJeu += 1
-        self.refresh()
+        self.mettre_pion(self.colorPlayer, ((event.x) - self.gridOffsetCanvas) // self.tailleCase, ((event.y) - self.gridOffsetCanvas) // self.tailleCase)
 
+    #Olivier
     def regles(self):
         """
         Permet d'afficher la fenetrePrincipale des regles
@@ -182,6 +203,7 @@ class Interface:
         self.fenetreRegles.resizable(0, 0)
         self.fenetreRegles.mainloop()
 
+    #Olivier
     def preferences(self):
         """
         Permet d'afficher la fenetrePrincipale des preferences
@@ -195,14 +217,14 @@ class Interface:
         self.canvasPion1Prefs = Canvas(self.fenetrePreferences, bg = "gray", height = 250, width = 250)
         self.canvasPion2Prefs = Canvas(self.fenetrePreferences, bg = "gray", height = 250, width = 250)
         self.canvasPlateauPrefs = Canvas(self.fenetrePreferences, bg = "gray", height = 250, width = 500)
-        self.canvasPion1Prefs.place(x = 0, y = 0)
-        self.canvasPion2Prefs.place(x = 250, y = 0)
+        self.canvasPion1Prefs.place(x = 250, y = 0)
+        self.canvasPion2Prefs.place(x = 0, y = 0)
         self.canvasPlateauPrefs.place(x = 0, y = 250)
-        Label(self.canvasPion1Prefs, bg = "gray", font = self.Comic2, text = "Pion 1").place(x = 10, y = 10)
-        Label(self.canvasPion2Prefs, bg = "gray", font = self.Comic2, text = "Pion 2").place(x = 10, y = 10)
+        Label(self.canvasPion1Prefs, bg = "gray", font = self.Comic2, text = "Pion 2").place(x = 10, y = 10)
+        Label(self.canvasPion2Prefs, bg = "gray", font = self.Comic2, text = "Pion 1").place(x = 10, y = 10)
         Label(self.canvasPlateauPrefs, bg = "gray", font = self.Comic2, text = "Plateau").place(x = 5, y = 5)
-        self.colorsListP1 = [("self.blanc", "white"), ("self.noir", "black"), ("Orange", "orange"), ("Bleu", "blue"), ("Vert", "green"), ("Rouge", "red"), ("Jaune", "Yellow")]
-        self.colorsListP2 = [("self.blanc", "white"), ("self.noir", "black"), ("Orange", "orange"), ("Bleu", "blue"), ("Vert", "green"), ("Rouge", "red"), ("Jaune", "Yellow")]
+        self.colorsListP1 = [("blanc", "white"), ("noir", "black"), ("Orange", "orange"), ("Bleu", "blue"), ("Vert", "green"), ("Rouge", "red"), ("Jaune", "Yellow")]
+        self.colorsListP2 = [("blanc", "white"), ("noir", "black"), ("Orange", "orange"), ("Bleu", "blue"), ("Vert", "green"), ("Rouge", "red"), ("Jaune", "Yellow")]
         self.backgroundsList = [("Aucun", "none"), ("Bois", "wood"), ("Nounours", "bear"), ("Digital", "digital"), ("Abstrait", "abstract"), ("Mur", "wall"), ("Penguins", "penguins"), ("Koala", "koala"), ("Desert", "desert")] # TODO add backgrounds ("nomAAfficher", "ID")
         tempValue = 0
         for tempText, tempColor in self.colorsListP1:
@@ -219,6 +241,7 @@ class Interface:
         Button(self.canvasPlateauPrefs, text = "Valider", command = self.appli_preferences).place(x = 230, y = 200)
         self.fenetrePreferences.mainloop()
 
+    #Olivier
     def appli_preferences(self):
         """
         Permet d'appliquer les changements de preferences a l'interface
@@ -228,12 +251,15 @@ class Interface:
             tkinter.messagebox.showerror("Erreur", "Vous ne pouvez pas utiliser la meme couleur pour les deux pions")
             return
         else:
-            self.count1Label.config(fg = self.colorPion2Prefs.get())
-            self.count2Label.config(fg = self.colorPion1Prefs.get())
+            self.count1Label.config(fg = self.colorPion1Prefs.get())
+            self.count2Label.config(fg = self.colorPion2Prefs.get())
+            self.count1Label.config(textvariable = self.count1Var)
+            self.count2Label.config(textvariable = self.count2Var)
             self.refresh()
             self.refreshBG()
             self.fenetrePreferences.destroy()
 
+    #Olivier
     def a_propos(self):
         """
         Permet d'afficher la fenetrePrincipale a propos
@@ -244,13 +270,25 @@ class Interface:
         self.fenetreAPropos.resizable(0, 0)
         self.fenetreAPropos.mainloop()
 
+    #Olivier
     def parler(self, event = None):
         """
         Permet au joueur d'envoyer un message dans le chat
         """
+        #print(self.decrypt(self.chatEntry.get()))
         self.textTraitment(self.chatEntry.get(), "player", str(self.pseudoEntry.get()), self.chatColor)
         self.chatEntry.delete(0, END) 
 
+    #Olivier 
+    def isValidPseudo(self, pseudo):
+        if(pseudo == ""): return False
+        character = ['|', '°', '§', '£', 'µ', '&', '£']
+        for z in character:
+            if(str(pseudo).find(z) > -1): 
+                return False
+        return True
+
+    #Olivier
     def textTraitment(self, text, user, name, color):
         """
         Permet d'afficher du texte dans la zone appropriee
@@ -261,11 +299,17 @@ class Interface:
             name -> Le nom a afficher
             self.color -> La couleur du texte
         """
-        if user == "player" and not isValidPseudo(self.pseudoEntry.get()): 
+        self.text=str(self.chatEntry.get())
+        self.textTime = strftime('%H:%M:%S : ', localtime())
+        self.name = str(user)
+        self.text = self.textTime + str(self.name) + " -> " + str(self.text)
+        message2 = str(text)
+        validPseudo = self.isValidPseudo(self.pseudoEntry.get())
+        if user == "player" and not validPseudo: 
             return
         else:
             if(str(text) == "" or len(text) == text.count(" ")): return
-            self.message2 = str(text)
+            message2 = str(text)
             textTime = strftime('%H:%M:%S : ', localtime())
             text = textTime + str(name) + " -> " + str(text)
             self.textChat.config(state = NORMAL)
@@ -273,25 +317,20 @@ class Interface:
             self.textChat.tag_configure(color, foreground = color)
             self.textChat.tag_add(color, "1." + str(len(textTime + str(name) + " -> ")), "1." + str(len(text)))
             colorUser = "black"
-            if(user == "player"): colorUser = self.colorPlayerChat
+            if(user == "player"): colorUser = "black"
             elif(user == "system"): colorUser = "red"
             else: colorUser = "black"
             self.textChat.tag_configure("name", foreground = colorUser)
             self.textChat.tag_add("name", "1." + str(len(textTime)), "1." + str(len(textTime + name)))
             self.joueur = str(user)
-            if str(user) == "player":
-                self.message.append(self.message2)
+            if server and user == "player":
+                self.message.append(message2)
                 print(self.message)
+            elif user == "player":
+                envoi("1", name, message2)
             self.textChat.config(state = DISABLED)
-        
-    def isValidPseudo(self, pseudo):
-        if(pseudo == ""): return False
-        character = ['|', '°', '§', '£', 'µ', '&']
-        for z in character:
-            if(str(text).find(z) > -1): 
-                return False
-        return True
     
+    #Olivier
     def connexion(self):
         """
         Permet d'initialiser la connexion
@@ -306,61 +345,90 @@ class Interface:
             self.textChat.config(state = NORMAL)
             self.textChat.config(fg = "red")
             self.textTraitment("Vous " + self.e_circonflexe() + "tes connect" + self.e_aigu() + " en tant que " + str(self.pseudoEntry.get()), "system", "Syst" + self.e_grave() + "me", "red")
-        
+    
+    #Olivier
     def stopInterface(self):
         if tkinter.messagebox.askquestion("", "Voulez vous vraiment quitter ?")=="no": return
         else: self.fenetrePrincipale.destroy()
         #arret_serv()
 
+    #Olivier
     def getLastPos(self):
-        print(self.couleur,self.caseX,self.caseY)
-        return [self.caseX, self.caseY, self.couleur]
+        print(self.lastPlayed,self.caseX,self.caseY)
+        return [self.lastPlayed, self.caseX, self.caseY]
 
+    #Olivier
     def getLastChat(self):
-        return ["Message1", "Message2", "Message3", "Neko"]
+        if(len(self.message) > 0):
+            m = self.message
+            m.append(self.pseudoEntry.get())
+            self.message = [];
+            return m
+        return None
 
+    def passer(self):
+        if(self.lastPlayed != self.colorPlayer):
+            self.lastPlayed = self.colorPlayer
+            if(server): self.requet = "£7"
+            else: envoi("7")
+
+    #Johann
     def decrypt(self, x):
         try:
-            if x[0] == '0': #0_col_x_y
-                self.placer_pion(int(x[2]), int(x[4]), int(x[6]))
-                return "OK " + str(int(x[1]))+ str(int(x[2])) + str(int(x[3]))
-            elif x[0] == '1': #1_user&mess
-                self.textTraitment(x[x.find('&') + 1:x.find(',')], "opponent", x[x.find(','):], 'red')
-                return "OK " + str(x[x.find('&') + 1:x.find(',')]) + "opponent"  + str(x[x.find(','):]) + 'red'
-            elif x[0] == '8':
-                x = x[1:]
+            if x[0:2] == '£0': #£0&col&x&y
+                self.mettre_pion(int(x[3]), int(x[5]), int(x[7]))
+                return "OK " + str(x[3])+ str(x[5]) + str(x[7])
+            elif x[0:2] == '£1': #£1&user&mess
+                x = x[x.find('&') + 1:]
+                user = x[:x.find('&')]
+                message = x[x.find('&') + 1:]
+                self.textTraitment(message, "opponent", user, 'red')
+                return "OK " + message + "opponent"  + user + 'red'
+            elif x[0:2] == "£7":
+                self.textTraitment("A votre tour de jouer", "system", "Syst" + self.e_grave() + "me", "red");
+                self.lastPlayed = 0
+                return "OK 7"
+            elif x[0:2] == '£8':
+                x = x[2:]
                 while x.find('£') > -1:
-                    x = x[1:]
-                    y = x
+                    x = x[x.find('£') + 1:]
                     if(x.find('£') > -1):
-                        print(self.decrypt(y[:y.find('£')]))
+                        print(self.decrypt('£' + x[:x.find('£')]))
                         x = x[x.find('£'):]
                     else:
-                        print(fen.decrypt(x))
-                return "OK 8"
-            elif x[0] == '9':
-                mess = '8'
+                        print(fen.decrypt('£' + x))
+                return "OK 8"                
+            elif x[0:2] == '£9':
+                mess = '£8'
                 s = self.getLastPos()
                 b = True
                 for a in s:
                     b = b and (str(a) != "None")
                 if b: 
-                    mess += "£0," + str(s[0]) + "&" + str(s[1]) + "&" + str(s[2])
+                    mess += "£0&" + str(s[0]) + "&" + str(s[1]) + "&" + str(s[2])
                 m = self.getLastChat()
-                user = m.pop()
-                for message in m:
-                    mess += "£1&" + user + "," + message
+                print(m)
+                if(self.requet != None):
+                    mess += self.requet
+                    self.requet = None
+                if(m != None):
+                    user = m.pop()
+                    for message in m:
+                        mess += "£1&" + user + "&" + message
+                print("OK 9")
                 return mess
         except IndexError as e:
             print(e)
             pass
         return "Error " + x
         
+    #Olivier
     def __init__(self):
         #Initialisation des variables
-        self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2, self.message= "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None, []
-
-
+        self.requet, self.caseX, self.caseY, self.colorPlayer, self.lastPlayed, self.colorVert, self.blanc, self.noir, self.yOffsetCanvas, self.xOffsetCanvas, self.gridOffsetCanvas, self.tailleCase , self.Comic, self.Comic2, self.Comic3, self.tourDeJeu, self.chatColor, self.colorPlayerChat,self.colorPion1Prefs, self.colorPion2Prefs, self.color, self.pseudoEntry, self.pseudo, self.fenetrePreferences, self.colorsListP1, self.colorsListP2, self.message= None, 9, 9, 0, 0, "#086126", 1, 2, 2, 8, 25, 50, ("self.Comic sans MS", "9"), ("self.Comic sans MS", "25"), ("self.Comic sans MS", "35"), 1, "black", "blue",None,None,None,None,None,None,None,None, []
+        if(server): self.colorPlayer = self.noir
+        else: self.colorPlayer = self.blanc
+        self.lastPlayed = self.blanc
 
         #from Server import lancement_serv, arret_serv
         #self.fenetreConnexion = Tk()
@@ -419,7 +487,7 @@ class Interface:
         #Creation du canvas contenant la grille de jeu
         self.canvasGrille = Canvas(self.fenetrePrincipale, bg = self.colorVert, height = 450, width = 435)
         self.canvasGrille.place(x = 0, y = 0)
-        self.canvasGrille.bind("<Button-1>", self.mettre_pion)
+        self.canvasGrille.bind("<Button-1>", self.clic_pion)
         Label(self.canvasGrille, text = "A", font = self.Comic, bg = self.colorVert).place(x = 45, y = self.yOffsetCanvas)
         Label(self.canvasGrille, text = "B", font = self.Comic, bg = self.colorVert).place(x = 95, y = self.yOffsetCanvas)
         Label(self.canvasGrille, text = "C", font = self.Comic, bg = self.colorVert).place(x = 145, y = self.yOffsetCanvas)
@@ -461,24 +529,24 @@ class Interface:
         self.count2Label = Label(self.canvasInfos, textvariable = self.count2Var, font = self.Comic3, fg = self.colorPion2Prefs.get(), bg = self.colorVert)
         self.count1Label.place(x = 240, y = 70)
         self.count2Label.place(x = 115, y = 70)
-        self.boutonEnvoyer = PhotoImage(data = "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")
-        Button(self.canvasInfos, image  = self.boutonEnvoyer, command = self.parler).place(x = 270, y = 425)
+        Button(self.canvasInfos, text = "Envoyer", command = self.parler).place(x = 270, y = 405)
         self.chatEntry = Entry(self.canvasInfos, width = 35)
         self.chatEntry.bind("<Return>", self.parler)
         self.chatEntry.place(x = 40, y = 400)
         self.textChat = Text(self.canvasInfos, state = DISABLED, width = 41, height = 8, font = ("self.Comic sans ms", 10))
         self.textChat.config(fg = "black")
         self.textChat.place(x = 20, y = 185)
-        self.boutonPartie = PhotoImage(data = "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")
-        Button(self.canvasInfos, image = self.boutonPartie , command = self.initialisation).place(x = 270, y = 1)
+        Button(self.canvasInfos, text = "Nouvelle partie" , command = self.initialisation).place(x = 270, y = 1)
+        Button(self.canvasInfos, text = "Passer son tour", command = self.passer).place(x = 270, y = 30)
         self.canvasInfos.create_line(100, 150, 180, 150)
         self.canvasInfos.create_line(100, 65, 100, 150)
         self.canvasInfos.create_line(100, 65, 180, 65)
         self.canvasInfos.create_line(180, 65, 180, 150)
-
+        self.initialisation()
 fen = Interface()
 
-class ThreadServer(threading.Thread):    
+#Johann
+class ThreadServer(threading.Thread):    #Initialisation varrables
     def __init__(self , tHote = socket.gethostbyname(socket.gethostname()), tPort = 50000):
         threading.Thread.__init__(self)
         self.hote = tHote
@@ -488,27 +556,27 @@ class ThreadServer(threading.Thread):
         self.start()
         
     def run(self):
-        connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexionPrincipale.bind((self.hote, self.port))
-        connexionPrincipale.listen(5)
+        connexionPrincipale = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #Creation variable de connection
+        connexionPrincipale.bind((self.hote, self.port)) #On definit IP + port
+        connexionPrincipale.listen(5) #On lance la l'ecoute de requetes
         server = "Bienvenue sur le serveur OTHELLO ({}:{})".format(self.hote, self.port)
         print("\n" + server.upper().center(85) + "\nTraitement des donnees :\n")
         clientsConnectes = []
         while not self.Terminated:
-            connexionsEntrantes, wlist, xlist = select.select([connexionPrincipale], [], [], 0.05)
-            for connexion in connexionsEntrantes:
-                connexionClient, infosConnexion = connexion.accept()
-                clientsConnectes.append(connexionClient)
-            clientsALire = []
             try:
-                clientsALire, wlist, xlist = select.select(clientsConnectes, [], [], 0.05)
+                connexionsEntrantes, wlist, xlist = select.select([connexionPrincipale], [], [], 0.05) #On rcupere les clients connectes sur le serveur
+                for connexion in connexionsEntrantes: #Pour chacun d'entre eux, on accepte leur connexion
+                    connexionClient, infosConnexion = connexion.accept()
+                    clientsConnectes.append(connexionClient)
+                clientsALire = []
+                clientsALire, wlist, xlist = select.select(clientsConnectes, [], [], 0.05) #On recupere la liste des requetes
+                for client in clientsALire: #Pour chaque requete
+                    messageRecu = client.recv(1024) #On recupere le message
+                    messageRecu = messageRecu.decode()
+                    print("> " + messageRecu)
+                    client.send(fen.decrypt(messageRecu).encode()) #On envoi la reponse au client
             except select.error:
                 pass
-            for client in clientsALire:
-                messageRecu = client.recv(1024)
-                messageRecu = messageRecu.decode()
-                print("> " + messageRecu)
-                client.send(fen.decrypt(messageRecu).encode())
         print("Fermeture des connexions")
         for client in clientsConnectes:
             client.close()
@@ -516,11 +584,12 @@ class ThreadServer(threading.Thread):
         
     def stop(self):
         self.Terminated = True
-
+#Johann
 def lancement_serv():
     global serverThread
     serverThread = ThreadServer()
 
+#Johann
 def arret_serv():
     global serverThread
     if(serverThread != None):serverThread.stop()
